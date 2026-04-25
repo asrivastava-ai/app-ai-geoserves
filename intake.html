@@ -1019,6 +1019,78 @@
   &nbsp;·&nbsp; Vessel DB: 88 vessels
 </footer>
 
+<!-- ADD NEW VESSEL MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add New Vessel</h2>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-label">Required particulars</div>
+      <div class="modal-grid">
+        <div class="modal-field full">
+          <label>Vessel Name</label>
+          <input type="text" id="m-name" placeholder="e.g. GREAT OCEAN">
+        </div>
+        <div class="modal-field">
+          <label>SSW Draft <span class="optional">(m)</span></label>
+          <input type="number" id="m-ssw-draft" placeholder="e.g. 14.45" step="0.001">
+        </div>
+        <div class="modal-field">
+          <label>SSW DWT <span class="optional">(MT)</span></label>
+          <input type="number" id="m-ssw-dwt" placeholder="e.g. 81000" step="1" oninput="updateFwaHint()">
+        </div>
+        <div class="modal-field">
+          <label>TPC</label>
+          <input type="number" id="m-tpc" placeholder="e.g. 71.5" step="0.01" oninput="updateFwaHint()">
+        </div>
+        <div class="modal-field">
+          <label>FWA <span class="optional">mm — optional, auto-calc if blank</span></label>
+          <input type="number" id="m-fwa" placeholder="Auto from DWT &amp; TPC" step="1">
+          <div id="fwa-hint" style="font-size:0.65rem;color:var(--mint);margin-top:3px;font-family:var(--mono);display:none;"></div>
+        </div>
+      </div>
+
+      <div class="modal-section-label">Optional particulars</div>
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Grain Capacity <span class="optional">m³ — optional</span></label>
+          <input type="number" id="m-grain" placeholder="e.g. 97250" step="0.1">
+        </div>
+        <div class="modal-field">
+          <label>Lightship <span class="optional">MT — optional</span></label>
+          <input type="number" id="m-lightship" placeholder="e.g. 13500" step="1">
+        </div>
+        <div class="modal-field">
+          <label>Displacement <span class="optional">MT — optional</span></label>
+          <input type="number" id="m-displacement" placeholder="e.g. 95000" step="1">
+        </div>
+        <div class="modal-field">
+          <label>BEAM <span class="optional">m — optional</span></label>
+          <input type="number" id="m-beam" placeholder="e.g. 32.26" step="0.01">
+        </div>
+        <div class="modal-field">
+          <label>LOA <span class="optional">m — optional</span></label>
+          <input type="number" id="m-loa" placeholder="e.g. 229.0" step="0.01">
+        </div>
+        <div class="modal-field full">
+          <label>Remark <span class="optional">optional</span></label>
+          <input type="text" id="m-remark" placeholder="e.g. Draft at marks for 14.45m">
+        </div>
+      </div>
+
+      <div id="modal-error" style="font-size:0.78rem;color:var(--red);display:none;margin-top:0.5rem;"></div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveNewVessel()">Save &amp; Select Vessel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase SDKs -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -1367,14 +1439,14 @@ function saveNewVessel() {
   // Validate required
   let hasError = false;
   const err = document.getElementById('modal-error');
-  ['m-name','m-ssw-draft','m-ssw-dwt','m-tpc','m-fwa'].forEach(id => {
+  ['m-name','m-ssw-draft','m-ssw-dwt','m-tpc'].forEach(id => {
     const el = document.getElementById(id);
     if (!el.value.trim()) { el.classList.add('required-empty'); hasError = true; }
     else el.classList.remove('required-empty');
   });
 
   if (hasError) {
-    err.textContent = 'Please fill in all required fields (Vessel Name, SSW Draft, SSW DWT, TPC, FWA).';
+    err.textContent = 'Please fill in all required fields (Vessel Name, SSW Draft, SSW DWT, TPC).';
     err.style.display = 'block';
     return;
   }
@@ -1544,6 +1616,29 @@ function calc() {
 // Init - vessel list populated by Firestore after auth
 // rebuildList() called by loadVessels() after Firestore loads
 
+// ── FWA auto-calculate hint ──
+window.updateFwaHint = function() {
+  const fwaEl = document.getElementById('m-fwa');
+  const hint = document.getElementById('fwa-hint');
+  if (!hint) return;
+  if (fwaEl && fwaEl.value) { hint.style.display='none'; return; }
+  const dwt = parseFloat(document.getElementById('m-ssw-dwt').value);
+  const tpc = parseFloat(document.getElementById('m-tpc').value);
+  if (dwt && tpc) {
+    const calc = ((1.18 * dwt) / (4 * tpc)).toFixed(1);
+    hint.textContent = '→ Auto: ' + calc + ' mm  (1.18 × DWT / 4 × TPC)';
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+};
+
+// Show FWA hint when DWT/TPC change
+['m-ssw-dwt','m-tpc'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateFwaHint);
+});
+
 // Override saveNewVessel to also persist to Firestore
 const _origSave = window.saveNewVessel;
 window.saveNewVessel = function() {
@@ -1551,11 +1646,12 @@ window.saveNewVessel = function() {
   const sswDraft = parseFloat(document.getElementById('m-ssw-draft').value);
   const sswDwt = parseFloat(document.getElementById('m-ssw-dwt').value);
   const tpc = parseFloat(document.getElementById('m-tpc').value);
-  const fwa = parseFloat(document.getElementById('m-fwa').value);
+  const fwaRaw = document.getElementById('m-fwa').value;
+  const fwa = fwaRaw ? parseFloat(fwaRaw) : parseFloat(((1.18 * sswDwt) / (4 * tpc)).toFixed(1));
 
   let hasError = false;
   const err = document.getElementById('modal-error');
-  ['m-name','m-ssw-draft','m-ssw-dwt','m-tpc','m-fwa'].forEach(id => {
+  ['m-name','m-ssw-draft','m-ssw-dwt','m-tpc'].forEach(id => {
     const el = document.getElementById(id);
     if (!el.value.trim()) { el.classList.add('required-empty'); hasError = true; }
     else el.classList.remove('required-empty');
