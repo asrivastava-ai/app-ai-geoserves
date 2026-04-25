@@ -1023,7 +1023,7 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, addDoc, query, orderBy, serverTimestamp }
+import { getFirestore, collection, getDocs, addDoc, serverTimestamp }
   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -1071,20 +1071,28 @@ window.doSignOut = async () => {
 
 // ---- Load vessels from Firestore ----
 async function loadVessels() {
+  const list = document.getElementById('vessel-list');
   try {
-    const snap = await getDocs(query(collection(db, 'vessels'), orderBy('name')));
+    const snap = await getDocs(collection(db, 'vessels'));
     const vessels = [];
     snap.forEach(d => vessels.push({ id: d.id, ...d.data() }));
-    // Inject into global VSL_DB
+
+    if (vessels.length === 0) {
+      list.innerHTML = '<div style="padding:1rem;color:var(--amber);font-size:0.8rem;">No vessels found. Run seed.html first.</div>';
+      return;
+    }
+
+    vessels.sort((a, b) => a.name.localeCompare(b.name));
     window.VSL_DB = vessels;
     window.filteredVessels = [...vessels];
     window.rebuildList();
     console.log('Loaded', vessels.length, 'vessels from Firestore');
   } catch(e) {
-    console.error('Failed to load vessels:', e);
-    // Fallback message
-    const list = document.getElementById('vessel-list');
-    if (list) list.innerHTML = '<div style="padding:1rem;color:var(--red);font-size:0.8rem;">Failed to load vessel database. Check Firestore rules.</div>';
+    console.error('Firestore error:', e.code, e.message);
+    const msg = e.code === 'permission-denied'
+      ? 'Permission denied - check Firestore rules'
+      : 'Error: ' + e.message;
+    if (list) list.innerHTML = '<div style="padding:1rem;color:var(--red);font-size:0.8rem;">' + msg + '</div>';
   }
 }
 
