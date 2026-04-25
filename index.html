@@ -7,742 +7,443 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --navy: #0a1628;
-    --navy-mid: #112240;
-    --navy-light: #1d3461;
-    --steel: #2563a0;
-    --sky: #38bdf8;
-    --cyan: #06b6d4;
-    --mint: #10b981;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --white: #f8fafc;
-    --muted: #94a3b8;
-    --border: rgba(56,189,248,0.15);
-    --card: rgba(17,34,64,0.85);
-    --font: 'Space Grotesk', sans-serif;
-    --mono: 'JetBrains Mono', monospace;
+    --navy:#0a1628;--navy-mid:#112240;--navy-light:#1d3461;--steel:#2563a0;
+    --sky:#38bdf8;--cyan:#06b6d4;--mint:#10b981;--amber:#f59e0b;--red:#ef4444;
+    --white:#f8fafc;--muted:#94a3b8;--border:rgba(56,189,248,0.15);
+    --card:rgba(17,34,64,0.85);--font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font);
-    background: var(--navy);
-    color: var(--white);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37,99,160,0.35) 0%, transparent 70%),
-      radial-gradient(ellipse 50% 40% at 85% 110%, rgba(6,182,212,0.12) 0%, transparent 60%);
-  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--font);background:var(--navy);color:var(--white);min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background-image:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(37,99,160,0.35) 0%,transparent 70%),radial-gradient(ellipse 50% 40% at 85% 110%,rgba(6,182,212,0.12) 0%,transparent 60%);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,0.2);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
 
-  /* ---- SCREENS ---- */
-  .screen { display: none; width: 100%; }
-  .screen.active { display: flex; }
+  /* SCREENS */
+  .screen{display:none;width:100%;}
+  .screen.active{display:flex;}
 
-  /* ---- LOGIN SCREEN ---- */
-  #screen-login {
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    flex-direction: column;
-    gap: 2rem;
-  }
+  /* LOGIN */
+  #screen-login{align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:2rem;}
+  .login-logo{text-align:center;}
+  .login-logo .icon{font-size:2.5rem;display:block;margin-bottom:.5rem;}
+  .login-logo h1{font-size:1.8rem;font-weight:700;letter-spacing:-.03em;}
+  .login-logo h1 span{color:var(--sky);}
+  .login-logo p{font-size:.78rem;color:var(--muted);font-family:var(--mono);margin-top:4px;}
+  .login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem;width:380px;backdrop-filter:blur(12px);}
+  .login-tabs{display:flex;background:rgba(255,255,255,.04);border-radius:10px;padding:4px;margin-bottom:1.5rem;border:1px solid var(--border);}
+  .login-tab{flex:1;padding:.5rem;text-align:center;font-size:.8rem;font-weight:500;cursor:pointer;border-radius:7px;border:none;background:none;color:var(--muted);font-family:var(--font);transition:all .2s;}
+  .login-tab.active{background:var(--steel);color:var(--white);}
+  .form-field{margin-bottom:1rem;}
+  .form-field label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
+  .form-field input{width:100%;padding:.6rem .875rem;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--font);font-size:.875rem;outline:none;transition:border-color .2s;}
+  .form-field input:focus{border-color:var(--sky);}
+  .form-field input::placeholder{color:rgba(148,163,184,.4);}
+  .btn-primary{width:100%;padding:.75rem;background:linear-gradient(135deg,var(--steel),var(--cyan));border:none;border-radius:10px;color:var(--white);font-family:var(--font);font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s,transform .15s;margin-top:.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+  .btn-primary:hover{opacity:.88;transform:translateY(-1px);}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .or-divider{display:flex;align-items:center;gap:.75rem;margin:1.25rem 0;color:var(--muted);font-size:.75rem;}
+  .or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  .btn-google{width:100%;padding:.7rem;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--font);font-size:.875rem;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:background .2s,border-color .2s;}
+  .btn-google:hover{background:rgba(255,255,255,.1);border-color:rgba(56,189,248,.3);}
+  .auth-error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:.6rem .875rem;font-size:.78rem;color:#fca5a5;margin-bottom:1rem;display:none;}
+  .auth-error.show{display:block;}
+  .forgot-link{text-align:center;margin-top:.875rem;font-size:.75rem;color:var(--muted);}
+  .forgot-link a{color:var(--sky);cursor:pointer;text-decoration:none;}
 
-  .login-logo {
-    text-align: center;
-  }
-  .login-logo .icon {
-    font-size: 2.5rem;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-  .login-logo h1 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-  }
-  .login-logo h1 span { color: var(--sky); }
-  .login-logo p {
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-family: var(--mono);
-    margin-top: 4px;
-  }
+  /* WELCOME OVERLAY */
+  #welcome-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+  #welcome-overlay.show{display:flex;}
+  .welcome-card{background:var(--navy-mid);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:420px;box-shadow:0 40px 80px rgba(0,0,0,.5);}
+  .welcome-card h2{font-size:1.3rem;font-weight:600;margin-bottom:.375rem;}
+  .welcome-card p{font-size:.82rem;color:var(--muted);margin-bottom:1.75rem;line-height:1.6;}
 
-  .login-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 2rem;
-    width: 380px;
-    backdrop-filter: blur(12px);
-  }
+  /* LAUNCHER */
+  #screen-launcher{flex-direction:column;min-height:100vh;}
+  .platform-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 2.5rem;border-bottom:1px solid var(--border);background:rgba(10,22,40,.9);backdrop-filter:blur(12px);position:sticky;top:0;z-index:100;}
+  .platform-logo{display:flex;align-items:center;gap:.75rem;}
+  .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--sky),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .logo-name{font-size:1rem;font-weight:600;letter-spacing:-.02em;}
+  .logo-name span{color:var(--sky);}
+  .logo-sub{font-size:.62rem;color:var(--muted);font-family:var(--mono);}
+  .user-menu{display:flex;align-items:center;gap:.875rem;}
+  .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--steel);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:600;overflow:hidden;border:2px solid var(--border);flex-shrink:0;}
+  .user-avatar img{width:100%;height:100%;object-fit:cover;}
+  .user-info{display:flex;flex-direction:column;}
+  .user-name-hdr{font-size:.8rem;font-weight:500;}
+  .user-company-hdr{font-size:.65rem;color:var(--muted);font-family:var(--mono);}
+  .admin-badge{font-size:.6rem;background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3);padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.05em;}
+  .btn-admin{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:7px;padding:5px 14px;color:var(--amber);font-size:.75rem;font-family:var(--font);cursor:pointer;transition:all .2s;}
+  .btn-admin:hover{background:rgba(245,158,11,.2);}
+  .btn-signout{background:transparent;border:1px solid var(--border);border-radius:7px;padding:5px 14px;color:var(--muted);font-size:.75rem;font-family:var(--font);cursor:pointer;transition:border-color .2s,color .2s;}
+  .btn-signout:hover{border-color:var(--muted);color:var(--white);}
+  .launcher-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;gap:2.5rem;}
+  .launcher-greeting{text-align:center;}
+  .launcher-greeting h2{font-size:1.6rem;font-weight:600;letter-spacing:-.02em;margin-bottom:.375rem;}
+  .launcher-greeting p{font-size:.85rem;color:var(--muted);}
+  .app-grid{display:grid;grid-template-columns:repeat(4,240px);gap:1.25rem;}
+  @media(max-width:1100px){.app-grid{grid-template-columns:repeat(2,240px);}}
+  @media(max-width:560px){.app-grid{grid-template-columns:1fr;}}
+  .app-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.75rem;cursor:pointer;transition:border-color .2s,transform .2s,box-shadow .2s;text-decoration:none;display:flex;flex-direction:column;gap:1rem;position:relative;overflow:hidden;backdrop-filter:blur(8px);}
+  .app-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;opacity:0;transition:opacity .2s;}
+  .app-card:hover{border-color:rgba(56,189,248,.35);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3);}
+  .app-card:hover::before{opacity:1;}
+  .app-card.intake::before{background:linear-gradient(90deg,var(--sky),var(--cyan));}
+  .app-card.cp::before{background:linear-gradient(90deg,#818cf8,#6366f1);}
+  .app-card.ops::before{background:linear-gradient(90deg,var(--mint),#059669);}
+  .app-card.laytime::before{background:linear-gradient(90deg,var(--amber),#f97316);}
+  .app-card-icon{font-size:2rem;width:52px;height:52px;background:rgba(255,255,255,.05);border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);}
+  .app-card-name{font-size:1rem;font-weight:600;letter-spacing:-.01em;color:var(--white);}
+  .app-card-desc{font-size:.78rem;color:var(--muted);line-height:1.6;flex:1;}
+  .app-card-badge{display:inline-flex;align-items:center;gap:5px;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.07em;padding:3px 10px;border-radius:20px;width:fit-content;}
+  .badge-live{background:rgba(16,185,129,.15);color:var(--mint);border:1px solid rgba(16,185,129,.25);}
+  .app-card-arrow{position:absolute;bottom:1.5rem;right:1.5rem;font-size:1.1rem;color:var(--muted);transition:color .2s,transform .2s;}
+  .app-card:hover .app-card-arrow{color:var(--sky);transform:translateX(3px);}
 
-  .login-tabs {
-    display: flex;
-    gap: 0;
-    background: rgba(255,255,255,0.04);
-    border-radius: 10px;
-    padding: 4px;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--border);
-  }
-  .login-tab {
-    flex: 1;
-    padding: 0.5rem;
-    text-align: center;
-    font-size: 0.8rem;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 7px;
-    border: none;
-    background: none;
-    color: var(--muted);
-    font-family: var(--font);
-    transition: all 0.2s;
-  }
-  .login-tab.active {
-    background: var(--steel);
-    color: var(--white);
-  }
+  /* ADMIN */
+  #screen-admin{flex-direction:column;min-height:100vh;}
+  .admin-body{flex:1;padding:2rem 2.5rem;max-width:1400px;width:100%;margin:0 auto;}
+  .admin-title{font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;color:var(--amber);}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+  @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;}
+  .stat-card .s-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.375rem;}
+  .stat-card .s-val{font-size:1.8rem;font-weight:700;font-family:var(--mono);color:var(--sky);}
+  .stat-card .s-sub{font-size:.7rem;color:var(--muted);margin-top:2px;}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:1.5rem;}
+  .panel-hdr{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .panel-hdr-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sky);}
+  .users-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  .users-table th{text-align:left;padding:.625rem 1rem;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border);font-weight:600;}
+  .users-table td{padding:.75rem 1rem;border-bottom:1px solid rgba(56,189,248,.06);color:var(--white);}
+  .users-table tr:hover td{background:rgba(56,189,248,.04);}
+  .u-avatar{width:28px;height:28px;border-radius:50%;background:var(--steel);display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;overflow:hidden;vertical-align:middle;margin-right:8px;border:1px solid var(--border);}
+  .u-avatar img{width:100%;height:100%;object-fit:cover;}
+  .role-badge{font-size:.6rem;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:.05em;}
+  .role-admin{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3);}
+  .role-user{background:rgba(56,189,248,.1);color:var(--sky);border:1px solid rgba(56,189,248,.2);}
+  .prov-badge{font-size:.6rem;padding:2px 8px;border-radius:20px;}
+  .prov-google{background:rgba(66,133,244,.15);color:#93c5fd;border:1px solid rgba(66,133,244,.2);}
+  .prov-email{background:rgba(148,163,184,.1);color:var(--muted);border:1px solid rgba(148,163,184,.2);}
 
-  .form-field { margin-bottom: 1rem; }
-  .form-field label {
-    display: block;
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    margin-bottom: 5px;
-  }
-  .form-field input {
-    width: 100%;
-    padding: 0.6rem 0.875rem;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--white);
-    font-family: var(--font);
-    font-size: 0.875rem;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-field input:focus { border-color: var(--sky); }
-  .form-field input::placeholder { color: rgba(148,163,184,0.4); }
-
-  .btn-primary {
-    width: 100%;
-    padding: 0.75rem;
-    background: linear-gradient(135deg, var(--steel), var(--cyan));
-    border: none;
-    border-radius: 10px;
-    color: var(--white);
-    font-family: var(--font);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s;
-    margin-top: 0.25rem;
-  }
-  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  .or-divider {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin: 1.25rem 0;
-    color: var(--muted);
-    font-size: 0.75rem;
-  }
-  .or-divider::before, .or-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .btn-google {
-    width: 100%;
-    padding: 0.7rem;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--white);
-    font-family: var(--font);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .btn-google:hover { background: rgba(255,255,255,0.1); border-color: rgba(56,189,248,0.3); }
-  .btn-google svg { width: 18px; height: 18px; }
-
-  .auth-error {
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.25);
-    border-radius: 8px;
-    padding: 0.6rem 0.875rem;
-    font-size: 0.78rem;
-    color: #fca5a5;
-    margin-bottom: 1rem;
-    display: none;
-  }
-  .auth-error.show { display: block; }
-
-  .forgot-link {
-    text-align: center;
-    margin-top: 0.875rem;
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
-  .forgot-link a { color: var(--sky); cursor: pointer; text-decoration: none; }
-  .forgot-link a:hover { text-decoration: underline; }
-
-  /* ---- LAUNCHER SCREEN ---- */
-  #screen-launcher {
-    flex-direction: column;
-    min-height: 100vh;
-  }
-
-  .platform-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2.5rem;
-    border-bottom: 1px solid var(--border);
-    background: rgba(10,22,40,0.9);
-    backdrop-filter: blur(12px);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-
-  .platform-logo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .platform-logo .logo-icon {
-    width: 34px; height: 34px;
-    background: linear-gradient(135deg, var(--sky), var(--cyan));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .platform-logo .logo-name {
-    font-size: 1rem; font-weight: 600; letter-spacing: -0.02em;
-  }
-  .platform-logo .logo-name span { color: var(--sky); }
-  .platform-logo .logo-sub {
-    font-size: 0.62rem; color: var(--muted); font-family: var(--mono);
-  }
-
-  .user-menu {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  .user-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: var(--steel);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.78rem; font-weight: 600;
-    overflow: hidden;
-    border: 2px solid var(--border);
-  }
-  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .user-name { font-size: 0.8rem; color: var(--muted); }
-  .btn-signout {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 5px 14px;
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-family: var(--font);
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .btn-signout:hover { border-color: var(--muted); color: var(--white); }
-
-  .launcher-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem 2rem;
-    gap: 2.5rem;
-  }
-
-  .launcher-greeting {
-    text-align: center;
-  }
-  .launcher-greeting h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.375rem;
-  }
-  .launcher-greeting p {
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-
-  .app-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 260px);
-    gap: 1.25rem;
-  }
-
-  @media (max-width: 960px) {
-    .app-grid { grid-template-columns: repeat(2, 260px); }
-  }
-  @media (max-width: 600px) {
-    .app-grid { grid-template-columns: 1fr; }
-  }
-
-  .app-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 1.75rem;
-    cursor: pointer;
-    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(8px);
-  }
-  .app-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  .app-card:hover {
-    border-color: rgba(56,189,248,0.35);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-  }
-  .app-card:hover::before { opacity: 1; }
-
-  .app-card.intake::before { background: linear-gradient(90deg, var(--sky), var(--cyan)); }
-  .app-card.cp::before { background: linear-gradient(90deg, #818cf8, #6366f1); }
-  .app-card.ops::before { background: linear-gradient(90deg, var(--mint), #059669); }
-  .app-card.coming::before { background: linear-gradient(90deg, var(--muted), #64748b); }
-  .app-card.laytime::before { background: linear-gradient(90deg, var(--amber), #f97316); }
-
-  .app-card-icon {
-    font-size: 2rem;
-    width: 52px; height: 52px;
-    background: rgba(255,255,255,0.05);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--border);
-  }
-
-  .app-card-name {
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--white);
-  }
-
-  .app-card-desc {
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.6;
-    flex: 1;
-  }
-
-  .app-card-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    padding: 3px 10px;
-    border-radius: 20px;
-    width: fit-content;
-  }
-  .badge-live { background: rgba(16,185,129,0.15); color: var(--mint); border: 1px solid rgba(16,185,129,0.25); }
-  .badge-soon { background: rgba(148,163,184,0.1); color: var(--muted); border: 1px solid rgba(148,163,184,0.2); }
-
-  .app-card-arrow {
-    position: absolute;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    font-size: 1.1rem;
-    color: var(--muted);
-    transition: color 0.2s, transform 0.2s;
-  }
-  .app-card:hover .app-card-arrow { color: var(--sky); transform: translateX(3px); }
-
-  .platform-footer {
-    text-align: center;
-    padding: 1.25rem;
-    color: var(--muted);
-    font-size: 0.68rem;
-    font-family: var(--mono);
-    border-top: 1px solid var(--border);
-  }
-
-  /* loading spinner */
-  .spinner {
-    width: 18px; height: 18px;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: inline-block;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .platform-footer{text-align:center;padding:1.25rem;color:var(--muted);font-size:.68rem;font-family:var(--mono);border-top:1px solid var(--border);}
 </style>
 </head>
 <body>
 
-<!-- ========== LOGIN SCREEN ========== -->
+<!-- LOGIN -->
 <div id="screen-login" class="screen active">
-
   <div class="login-logo">
     <span class="icon">⚓</span>
     <h1>Geo<span>Serves</span></h1>
     <p>app.ai-geoserves.com</p>
   </div>
-
   <div class="login-card">
-
     <div class="login-tabs">
       <button class="login-tab active" onclick="switchTab('signin')">Sign In</button>
       <button class="login-tab" onclick="switchTab('register')">Register</button>
     </div>
-
     <div id="auth-error" class="auth-error"></div>
-
-    <!-- GOOGLE BUTTON -->
     <button class="btn-google" onclick="signInGoogle()">
-      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.2H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.8z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.5 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.2H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.2 5.2C36.9 37.2 44 32 44 24c0-1.3-.1-2.6-.4-3.8z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.2H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.8z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.5 29.5 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.5 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.2H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.2 5.2C36.9 37.2 44 32 44 24c0-1.3-.1-2.6-.4-3.8z"/></svg>
       Continue with Google
     </button>
-
     <div class="or-divider">or</div>
-
-    <!-- SIGN IN FORM -->
     <div id="form-signin">
-      <div class="form-field">
-        <label>Email</label>
-        <input type="email" id="si-email" placeholder="you@example.com">
-      </div>
-      <div class="form-field">
-        <label>Password</label>
-        <input type="password" id="si-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')signInEmail()">
-      </div>
+      <div class="form-field"><label>Email</label><input type="email" id="si-email" placeholder="you@example.com"></div>
+      <div class="form-field"><label>Password</label><input type="password" id="si-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')signInEmail()"></div>
       <button class="btn-primary" onclick="signInEmail()" id="btn-signin">Sign In</button>
       <div class="forgot-link"><a onclick="showForgot()">Forgot password?</a></div>
     </div>
-
-    <!-- REGISTER FORM -->
     <div id="form-register" style="display:none;">
-      <div class="form-field">
-        <label>Full Name</label>
-        <input type="text" id="reg-name" placeholder="Your name">
-      </div>
-      <div class="form-field">
-        <label>Email</label>
-        <input type="email" id="reg-email" placeholder="you@example.com">
-      </div>
-      <div class="form-field">
-        <label>Password</label>
-        <input type="password" id="reg-password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')registerEmail()">
-      </div>
+      <div class="form-field"><label>Full Name *</label><input type="text" id="reg-name" placeholder="Your name"></div>
+      <div class="form-field"><label>Email *</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+      <div class="form-field"><label>Company <span style="color:var(--muted);font-size:.65rem;">(optional)</span></label><input type="text" id="reg-company" placeholder="Your company"></div>
+      <div class="form-field"><label>Password *</label><input type="password" id="reg-password" placeholder="Min 6 characters" onkeydown="if(event.key==='Enter')registerEmail()"></div>
       <button class="btn-primary" onclick="registerEmail()" id="btn-register">Create Account</button>
     </div>
-
   </div>
 </div>
 
-<!-- ========== LAUNCHER SCREEN ========== -->
-<div id="screen-launcher" class="screen">
+<!-- WELCOME OVERLAY -->
+<div id="welcome-overlay">
+  <div class="welcome-card">
+    <div style="font-size:2rem;margin-bottom:1rem;">👋</div>
+    <h2>Welcome to GeoServes!</h2>
+    <p>Just a few details before you dive in. Company is optional.</p>
+    <div class="form-field"><label>Your Name *</label><input type="text" id="w-name" placeholder="Full name"></div>
+    <div class="form-field"><label>Company <span style="color:var(--muted);font-size:.65rem;">(optional)</span></label><input type="text" id="w-company" placeholder="Your company or organisation"></div>
+    <div id="welcome-error" style="font-size:.78rem;color:#fca5a5;margin-bottom:.75rem;display:none;"></div>
+    <button class="btn-primary" onclick="saveWelcome()" id="btn-welcome">Enter Platform →</button>
+  </div>
+</div>
 
+<!-- LAUNCHER -->
+<div id="screen-launcher" class="screen">
   <header class="platform-header">
     <div class="platform-logo">
       <div class="logo-icon">⚓</div>
-      <div>
-        <div class="logo-name">Geo<span>Serves</span></div>
-        <div class="logo-sub">app.ai-geoserves.com</div>
-      </div>
+      <div><div class="logo-name">Geo<span>Serves</span></div><div class="logo-sub">app.ai-geoserves.com</div></div>
     </div>
     <div class="user-menu">
-      <div class="user-avatar" id="user-avatar">
-        <span id="user-initials">?</span>
+      <div class="user-avatar" id="user-avatar"><span id="user-initials">?</span></div>
+      <div class="user-info">
+        <div class="user-name-hdr" id="user-name-display"></div>
+        <div class="user-company-hdr" id="user-company-display"></div>
       </div>
-      <span class="user-name" id="user-name-display"></span>
-      <button class="btn-signout" onclick="signOut()">Sign out</button>
+      <span class="admin-badge" id="admin-badge" style="display:none;">⭐ Admin</span>
+      <button class="btn-admin" id="admin-btn" onclick="showAdmin()" style="display:none;">Admin Panel</button>
+      <button class="btn-signout" onclick="doSignOut()">Sign out</button>
     </div>
   </header>
-
   <div class="launcher-body">
-
     <div class="launcher-greeting">
       <h2>Good <span id="time-greeting">day</span>, <span id="greeting-name" style="color:var(--sky);">there</span> 👋</h2>
       <p>Select a tool to get started</p>
     </div>
-
     <div class="app-grid">
-
-      <!-- Dry Intake Calculator -->
       <a class="app-card intake" href="intake.html">
         <div class="app-card-icon">⚓</div>
-        <div>
-          <div class="app-card-name">Dry Bulk Intake</div>
-          <div class="app-card-desc">Calculate cargo intake for bulk vessels — Summer, Winter & Tropical zones with full deductibles breakdown.</div>
-        </div>
+        <div><div class="app-card-name">Dry Bulk Intake</div><div class="app-card-desc">Calculate cargo intake for bulk vessels — Summer, Winter & Tropical zones with full deductibles breakdown.</div></div>
         <div><span class="app-card-badge badge-live">● Live</span></div>
         <div class="app-card-arrow">→</div>
       </a>
-
-      <!-- CP Review -->
       <a class="app-card cp" href="https://ai-cp-review.ai-geoserves.com/" target="_blank">
         <div class="app-card-icon">📋</div>
-        <div>
-          <div class="app-card-name">CP Review</div>
-          <div class="app-card-desc">Charter party clause analysis, comments, and tracking. AI-powered contract review for voyage fixtures.</div>
-        </div>
+        <div><div class="app-card-name">CP Review</div><div class="app-card-desc">Charter party clause analysis, comments, and tracking. AI-powered contract review for voyage fixtures.</div></div>
         <div><span class="app-card-badge badge-live">● Live</span></div>
         <div class="app-card-arrow">→</div>
       </a>
-
-      <!-- Ops Dashboard -->
       <a class="app-card ops" href="https://geovoy.ai-geoserves.com/" target="_blank">
         <div class="app-card-icon">📊</div>
-        <div>
-          <div class="app-card-name">Ops Dashboard</div>
-          <div class="app-card-desc">Voyage operations management — laytime, bunkers, port calls, and P&L tracking in real-time.</div>
-        </div>
+        <div><div class="app-card-name">Ops Dashboard</div><div class="app-card-desc">Voyage operations management — laytime, bunkers, port calls, and P&L tracking in real-time.</div></div>
         <div><span class="app-card-badge badge-live">● Live</span></div>
         <div class="app-card-arrow">→</div>
       </a>
-
-      <!-- Laytime Calculator -->
       <a class="app-card laytime" href="https://www.ai-geoserves.com/" target="_blank">
         <div class="app-card-icon">⏱️</div>
-        <div>
-          <div class="app-card-name">Laytime Calculator</div>
-          <div class="app-card-desc">Calculate laytime, demurrage and despatch for bulk and tanker voyages with full SOF support.</div>
-        </div>
+        <div><div class="app-card-name">Laytime Calculator</div><div class="app-card-desc">Calculate laytime, demurrage and despatch for bulk and tanker voyages with full SOF support.</div></div>
         <div><span class="app-card-badge badge-live">● Live</span></div>
         <div class="app-card-arrow">→</div>
       </a>
-
     </div>
-
   </div>
-
-  <footer class="platform-footer">
-    ai-geoserves.com &nbsp;·&nbsp; Maritime Intelligence Platform &nbsp;·&nbsp; © 2026
-  </footer>
-
+  <footer class="platform-footer">ai-geoserves.com &nbsp;·&nbsp; Maritime Intelligence Platform &nbsp;·&nbsp; © 2026</footer>
 </div>
 
-<!-- Firebase SDKs -->
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <header class="platform-header">
+    <div class="platform-logo">
+      <div class="logo-icon">⚓</div>
+      <div><div class="logo-name">Geo<span>Serves</span> <span style="font-size:.7rem;color:var(--amber);font-family:var(--mono);">Admin</span></div><div class="logo-sub">app.ai-geoserves.com</div></div>
+    </div>
+    <div class="user-menu">
+      <button onclick="showLauncher()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;padding:5px 14px;color:var(--muted);font-size:.75rem;font-family:var(--font);cursor:pointer;">← Back to Platform</button>
+      <button class="btn-signout" onclick="doSignOut()">Sign out</button>
+    </div>
+  </header>
+  <div class="admin-body">
+    <div class="admin-title">⭐ Admin Panel</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="s-label">Total Users</div><div class="s-val" id="stat-users">—</div><div class="s-sub">registered accounts</div></div>
+      <div class="stat-card"><div class="s-label">Google Sign-In</div><div class="s-val" id="stat-google">—</div><div class="s-sub">via Google OAuth</div></div>
+      <div class="stat-card"><div class="s-label">Email Sign-In</div><div class="s-val" id="stat-email">—</div><div class="s-sub">email & password</div></div>
+      <div class="stat-card"><div class="s-label">Vessels in DB</div><div class="s-val" id="stat-vessels">—</div><div class="s-sub">Firestore records</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-hdr-title">Registered Users</span>
+        <span style="font-size:.72rem;color:var(--muted);" id="users-count"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="users-table">
+          <thead><tr><th>User</th><th>Email</th><th>Company</th><th>Role</th><th>Provider</th><th>Joined</th><th>Last Seen</th></tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-           signInWithPopup, GoogleAuthProvider, signOut as fbSignOut,
-           onAuthStateChanged, updateProfile, sendPasswordResetEmail
-  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-  import { getFirestore, doc, setDoc, getDoc, serverTimestamp
-  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+         signInWithPopup, GoogleAuthProvider, signOut as fbSignOut,
+         onAuthStateChanged, updateProfile, sendPasswordResetEmail
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, serverTimestamp, updateDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAR3_62BINzc7cqWRVWz23AsRB-4tgBlg4",
-    authDomain: "geovoy-ops.firebaseapp.com",
-    projectId: "geovoy-ops",
-    storageBucket: "geovoy-ops.firebasestorage.app",
-    messagingSenderId: "736376861035",
-    appId: "1:736376861035:web:2deb1f2122cb2d99525c2e"
-  };
+const ADMIN_EMAIL = 'aloksrius@yahoo.com';
+const fbApp = initializeApp({
+  apiKey:"AIzaSyAR3_62BINzc7cqWRVWz23AsRB-4tgBlg4",
+  authDomain:"geovoy-ops.firebaseapp.com",
+  projectId:"geovoy-ops",
+  storageBucket:"geovoy-ops.firebasestorage.app",
+  messagingSenderId:"736376861035",
+  appId:"1:736376861035:web:2deb1f2122cb2d99525c2e"
+});
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const gProvider = new GoogleAuthProvider();
+let curUser = null, curData = null;
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const googleProvider = new GoogleAuthProvider();
-  const ADMIN_EMAIL = 'asrivastava@ai-geoserves.com';
-
-  // ---- Save user to Firestore ----
-  async function saveUser(user, provider) {
-    const ref = doc(db, 'users', user.uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      await setDoc(ref, {
-        uid: user.uid,
-        name: user.displayName || '',
-        email: user.email,
-        photoURL: user.photoURL || '',
-        provider,
-        role: user.email === ADMIN_EMAIL ? 'admin' : 'user',
-        firstLogin: serverTimestamp(),
-        lastLogin: serverTimestamp()
-      });
-    } else {
-      await setDoc(ref, { lastLogin: serverTimestamp() }, { merge: true });
-    }
-  }
-
-  // ---- Auth state ----
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      showLauncher(user);
-    } else {
-      showLogin();
-    }
-  });
-
-  // ---- Show screens ----
-  function showLogin() {
-    document.getElementById('screen-login').classList.add('active');
-    document.getElementById('screen-launcher').classList.remove('active');
-  }
-
-  function showLauncher(user) {
-    document.getElementById('screen-login').classList.remove('active');
-    document.getElementById('screen-launcher').classList.add('active');
-
-    const name = user.displayName || user.email.split('@')[0];
-    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
-
-    document.getElementById('greeting-name').textContent = name.split(' ')[0];
-    document.getElementById('user-name-display').textContent = user.email;
-    document.getElementById('user-initials').textContent = initials;
-
-    if (user.photoURL) {
-      document.getElementById('user-avatar').innerHTML = `<img src="${user.photoURL}" alt="${name}">`;
-    }
-
-    const hr = new Date().getHours();
-    document.getElementById('time-greeting').textContent =
-      hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
-  }
-
-  // ---- Google sign-in ----
-  window.signInGoogle = async () => {
-    clearError();
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      await saveUser(result.user, 'google');
-    } catch(e) { showError(e.message); }
-  };
-
-  // ---- Email sign-in ----
-  window.signInEmail = async () => {
-    clearError();
-    const btn = document.getElementById('btn-signin');
-    const email = document.getElementById('si-email').value.trim();
-    const password = document.getElementById('si-password').value;
-    if (!email || !password) return showError('Please enter email and password.');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>';
-    try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      await saveUser(result.user, 'email');
-    } catch(e) {
-      showError(friendlyError(e.code));
-      btn.disabled = false;
-      btn.textContent = 'Sign In';
-    }
-  };
-
-  // ---- Register ----
-  window.registerEmail = async () => {
-    clearError();
-    const btn = document.getElementById('btn-register');
-    const name = document.getElementById('reg-name').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const password = document.getElementById('reg-password').value;
-    if (!name || !email || !password) return showError('Please fill in all fields.');
-    if (password.length < 6) return showError('Password must be at least 6 characters.');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>';
-    try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(result.user, { displayName: name });
-      await saveUser(result.user, 'email');
-    } catch(e) {
-      showError(friendlyError(e.code));
-      btn.disabled = false;
-      btn.textContent = 'Create Account';
-    }
-  };
-
-  // ---- Sign out ----
-  window.signOut = async () => {
-    await fbSignOut(auth);
-  };
-
-  // ---- Forgot password ----
-  window.showForgot = async () => {
-    const email = document.getElementById('si-email').value.trim();
-    if (!email) return showError('Enter your email address first, then click Forgot password.');
-    try {
-      await sendPasswordResetEmail(auth, email);
-      showError('✅ Password reset email sent! Check your inbox.');
-      document.getElementById('auth-error').style.color = 'var(--mint)';
-      document.getElementById('auth-error').style.background = 'rgba(16,185,129,0.1)';
-      document.getElementById('auth-error').style.borderColor = 'rgba(16,185,129,0.25)';
-    } catch(e) { showError(friendlyError(e.code)); }
-  };
-
-  // ---- Tab switching ----
-  window.switchTab = (tab) => {
-    document.querySelectorAll('.login-tab').forEach((t,i) => {
-      t.classList.toggle('active', (i===0 && tab==='signin') || (i===1 && tab==='register'));
+async function saveUser(user, provider, extra={}) {
+  const ref = doc(db,'users',user.uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) {
+    await setDoc(ref,{
+      uid:user.uid, name:user.displayName||extra.name||'',
+      email:user.email, photoURL:user.photoURL||'',
+      company:extra.company||'', provider,
+      role: user.email===ADMIN_EMAIL?'admin':'user',
+      firstLogin:serverTimestamp(), lastLogin:serverTimestamp(),
+      profileComplete: user.email===ADMIN_EMAIL ? true : !!(user.displayName||extra.name)
     });
-    document.getElementById('form-signin').style.display = tab === 'signin' ? 'block' : 'none';
-    document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
-    clearError();
-  };
+  } else {
+    const upd = {lastLogin:serverTimestamp()};
+    if (extra.name) upd.name = extra.name;
+    if (extra.company!==undefined) upd.company = extra.company;
+    if (extra.profileComplete!==undefined) upd.profileComplete = extra.profileComplete;
+    await updateDoc(ref, upd);
+  }
+  return (await getDoc(ref)).data();
+}
 
-  function showError(msg) {
-    const el = document.getElementById('auth-error');
-    el.textContent = msg;
-    el.classList.add('show');
+onAuthStateChanged(auth, async user => {
+  if (!user) { showScreen('login'); return; }
+  curUser = user;
+  const snap = await getDoc(doc(db,'users',user.uid));
+  curData = snap.exists() ? snap.data() : null;
+
+  if (!curData || curData.profileComplete===false) {
+    if (user.displayName) document.getElementById('w-name').value = user.displayName;
+    if (!curData) curData = await saveUser(user, user.providerData[0]?.providerId==='google.com'?'google':'email');
+    document.getElementById('welcome-overlay').classList.add('show');
+    showScreen('launcher');
+    renderLauncher();
+    return;
   }
-  function clearError() {
-    const el = document.getElementById('auth-error');
-    el.classList.remove('show');
-    el.style.color = '';
-    el.style.background = '';
-    el.style.borderColor = '';
-  }
-  function friendlyError(code) {
-    const map = {
-      'auth/invalid-credential': 'Incorrect email or password.',
-      'auth/user-not-found': 'No account found with this email.',
-      'auth/wrong-password': 'Incorrect password.',
-      'auth/email-already-in-use': 'An account with this email already exists.',
-      'auth/weak-password': 'Password must be at least 6 characters.',
-      'auth/invalid-email': 'Please enter a valid email address.',
-      'auth/popup-closed-by-user': 'Sign-in cancelled.'
-    };
-    return map[code] || 'Something went wrong. Please try again.';
-  }
+  showScreen('launcher');
+  renderLauncher();
+});
+
+function renderLauncher() {
+  const name = curData?.name || curUser.displayName || curUser.email.split('@')[0];
+  const company = curData?.company || '';
+  const isAdmin = curUser.email === ADMIN_EMAIL;
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('greeting-name').textContent = name.split(' ')[0];
+  document.getElementById('user-name-display').textContent = name;
+  document.getElementById('user-company-display').textContent = company || curUser.email;
+  document.getElementById('user-initials').textContent = initials;
+  if (curUser.photoURL) document.getElementById('user-avatar').innerHTML = `<img src="${curUser.photoURL}" alt="${name}">`;
+  document.getElementById('admin-badge').style.display = isAdmin ? 'inline-flex' : 'none';
+  document.getElementById('admin-btn').style.display = isAdmin ? 'block' : 'none';
+  const hr = new Date().getHours();
+  document.getElementById('time-greeting').textContent = hr<12?'morning':hr<17?'afternoon':'evening';
+}
+
+window.saveWelcome = async () => {
+  const name = document.getElementById('w-name').value.trim();
+  const company = document.getElementById('w-company').value.trim();
+  const errEl = document.getElementById('welcome-error');
+  if (!name) { errEl.textContent='Please enter your name.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const btn = document.getElementById('btn-welcome');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try {
+    await updateProfile(curUser,{displayName:name});
+    curData = await saveUser(curUser, curUser.providerData[0]?.providerId==='google.com'?'google':'email', {name,company,profileComplete:true});
+    document.getElementById('welcome-overlay').classList.remove('show');
+    renderLauncher();
+  } catch(e) { errEl.textContent=e.message; errEl.style.display='block'; btn.disabled=false; btn.textContent='Enter Platform →'; }
+};
+
+window.signInGoogle = async () => {
+  clearError();
+  try { await signInWithPopup(auth, gProvider); }
+  catch(e) { if(e.code!=='auth/popup-closed-by-user') showError(friendly(e.code)); }
+};
+
+window.signInEmail = async () => {
+  clearError();
+  const btn = document.getElementById('btn-signin');
+  const email = document.getElementById('si-email').value.trim();
+  const pass = document.getElementById('si-password').value;
+  if(!email||!pass) return showError('Please enter email and password.');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try { await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e) { showError(friendly(e.code)); btn.disabled=false; btn.textContent='Sign In'; }
+};
+
+window.registerEmail = async () => {
+  clearError();
+  const btn = document.getElementById('btn-register');
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const company = document.getElementById('reg-company').value.trim();
+  const pass = document.getElementById('reg-password').value;
+  if(!name||!email||!pass) return showError('Please fill in all required fields.');
+  if(pass.length<6) return showError('Password must be at least 6 characters.');
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try {
+    const r = await createUserWithEmailAndPassword(auth,email,pass);
+    await updateProfile(r.user,{displayName:name});
+    await saveUser(r.user,'email',{name,company,profileComplete:true});
+  } catch(e) { showError(friendly(e.code)); btn.disabled=false; btn.textContent='Create Account'; }
+};
+
+window.doSignOut = async () => { await fbSignOut(auth); };
+
+window.showForgot = async () => {
+  const email = document.getElementById('si-email').value.trim();
+  if(!email) return showError('Enter your email first, then click Forgot password.');
+  try {
+    await sendPasswordResetEmail(auth,email);
+    const el=document.getElementById('auth-error');
+    el.textContent='✅ Reset email sent — check your inbox.';
+    el.style.color='var(--mint)'; el.style.background='rgba(16,185,129,0.1)';
+    el.style.borderColor='rgba(16,185,129,0.25)'; el.classList.add('show');
+  } catch(e) { showError(friendly(e.code)); }
+};
+
+window.switchTab = tab => {
+  document.querySelectorAll('.login-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='signin')||(i===1&&tab==='register')));
+  document.getElementById('form-signin').style.display = tab==='signin'?'block':'none';
+  document.getElementById('form-register').style.display = tab==='register'?'block':'none';
+  clearError();
+};
+
+window.showAdmin = async () => {
+  showScreen('admin');
+  try {
+    const usersSnap = await getDocs(collection(db,'users'));
+    const users=[]; usersSnap.forEach(d=>users.push(d.data()));
+    document.getElementById('stat-users').textContent = users.length;
+    document.getElementById('stat-google').textContent = users.filter(u=>u.provider==='google').length;
+    document.getElementById('stat-email').textContent = users.filter(u=>u.provider==='email').length;
+    document.getElementById('users-count').textContent = `${users.length} users`;
+    const vSnap = await getDocs(collection(db,'vessels'));
+    document.getElementById('stat-vessels').textContent = vSnap.size;
+    users.sort((a,b)=>(b.firstLogin?.seconds||0)-(a.firstLogin?.seconds||0));
+    const fmt = ts => ts?.toDate ? ts.toDate().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+    document.getElementById('users-tbody').innerHTML = users.length ? users.map(u=>{
+      const init=(u.name||u.email).split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+      const av=u.photoURL?`<span class="u-avatar"><img src="${u.photoURL}"></span>`:`<span class="u-avatar">${init}</span>`;
+      const role=u.role==='admin'?'<span class="role-badge role-admin">⭐ Admin</span>':'<span class="role-badge role-user">User</span>';
+      const prov=u.provider==='google'?'<span class="prov-badge prov-google">G Google</span>':'<span class="prov-badge prov-email">✉ Email</span>';
+      return `<tr><td>${av}<strong>${u.name||'—'}</strong></td><td style="font-family:var(--mono);font-size:.78rem;">${u.email}</td><td style="color:var(--muted);">${u.company||'—'}</td><td>${role}</td><td>${prov}</td><td style="font-family:var(--mono);font-size:.75rem;color:var(--muted);">${fmt(u.firstLogin)}</td><td style="font-family:var(--mono);font-size:.75rem;color:var(--muted);">${fmt(u.lastLogin)}</td></tr>`;
+    }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">No users yet</td></tr>';
+  } catch(e) { document.getElementById('users-tbody').innerHTML=`<tr><td colspan="7" style="color:var(--red);padding:1rem;">${e.message}</td></tr>`; }
+};
+
+window.showLauncher = () => { showScreen('launcher'); renderLauncher(); };
+
+function showScreen(n) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(`screen-${n}`).classList.add('active'); }
+function showError(msg) { const el=document.getElementById('auth-error'); el.textContent=msg; el.style.color=''; el.style.background=''; el.style.borderColor=''; el.classList.add('show'); }
+function clearError() { document.getElementById('auth-error').classList.remove('show'); }
+function friendly(c) { return({'auth/invalid-credential':'Incorrect email or password.','auth/user-not-found':'No account found with this email.','auth/wrong-password':'Incorrect password.','auth/email-already-in-use':'An account with this email already exists.','auth/weak-password':'Password must be at least 6 characters.','auth/invalid-email':'Please enter a valid email address.','auth/popup-closed-by-user':'Sign-in cancelled.'}[c]||'Something went wrong. Please try again.'); }
 </script>
-
 </body>
 </html>
