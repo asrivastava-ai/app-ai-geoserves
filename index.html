@@ -299,7 +299,7 @@
 
   .app-grid {
     display: grid;
-    grid-template-columns: repeat(3, 280px);
+    grid-template-columns: repeat(4, 260px);
     gap: 1.25rem;
   }
 
@@ -344,6 +344,7 @@
   .app-card.cp::before { background: linear-gradient(90deg, #818cf8, #6366f1); }
   .app-card.ops::before { background: linear-gradient(90deg, var(--mint), #059669); }
   .app-card.coming::before { background: linear-gradient(90deg, var(--muted), #64748b); }
+  .app-card.laytime::before { background: linear-gradient(90deg, var(--amber), #f97316); }
 
   .app-card-icon {
     font-size: 2rem;
@@ -535,6 +536,17 @@
           <div class="app-card-desc">Voyage operations management — laytime, bunkers, port calls, and P&L tracking in real-time.</div>
         </div>
         <div><span class="app-card-badge badge-soon">⏳ Coming soon</span></div>
+        <div class="app-card-arrow">→</div>
+      </a>
+
+      <!-- Laytime Calculator -->
+      <a class="app-card laytime" href="https://www.ai-geoserves.com/" target="_blank">
+        <div class="app-card-icon">⏱️</div>
+        <div>
+          <div class="app-card-name">Laytime Calculator</div>
+          <div class="app-card-desc">Calculate laytime, demurrage and despatch for bulk and tanker voyages with full SOF support.</div>
+        </div>
+        <div><span class="app-card-badge badge-live">● Live</span></div>
         <div class="app-card-arrow">→</div>
       </a>
 
