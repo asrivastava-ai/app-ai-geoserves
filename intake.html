@@ -1050,6 +1050,27 @@ onAuthStateChanged(auth, async user => {
   // Show the app
   document.getElementById('auth-guard').classList.add('hidden');
 
+  // Track app usage in Firestore
+  try {
+    const { getFirestore, doc, getDoc, updateDoc, arrayUnion } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const fdb = getFirestore(fbApp);
+    const uref = doc(fdb, 'users', user.uid);
+    const usnap = await getDoc(uref);
+    if (usnap.exists()) {
+      await updateDoc(uref, { lastApp: 'intake', appsUsed: arrayUnion('intake') });
+    } else {
+      // New user - create record
+      const { setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      await setDoc(uref, {
+        uid: user.uid, name: user.displayName||'', email: user.email,
+        photoURL: user.photoURL||'', provider: user.providerData[0]?.providerId==='google.com'?'google':'email',
+        role: user.email==='aloksrius@yahoo.com'?'admin':'user',
+        firstLogin: serverTimestamp(), lastLogin: serverTimestamp(),
+        appsUsed: ['intake'], lastApp: 'intake', profileComplete: true, company: ''
+      });
+    }
+  } catch(e) { console.log('App tracking:', e.message); }
+
   // Set header user
   const name = user.displayName || user.email.split('@')[0];
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2);
