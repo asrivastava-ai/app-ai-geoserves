@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DryIntake — ai-geoserves.com</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #112240;
+    --navy-light: #1d3461;
+    --steel: #2563a0;
+    --sky: #38bdf8;
+    --cyan: #06b6d4;
+    --mint: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --white: #f8fafc;
+    --muted: #94a3b8;
+    --border: rgba(56,189,248,0.15);
+    --card: rgba(17,34,64,0.8);
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    zoom: 0.75;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37,99,160,0.3) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(6,182,212,0.1) 0%, transparent 60%);
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,22,40,0.9);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--sky), var(--cyan));
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text span { color: var(--sky); }
+
+  .logo-sub {
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.05em;
+  }
+
+  .header-badge {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    color: var(--mint);
+    border: 1px solid rgba(16,185,129,0.3);
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(16,185,129,0.08);
+  }
+
+  /* MAIN LAYOUT */
+  .app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .app { grid-template-columns: 1fr; padding: 1rem; }
+  }
+
+  /* PANEL */
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+  }
+
+  .panel-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .panel-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sky);
+  }
+
+  .panel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sky);
+    box-shadow: 0 0 6px var(--sky);
+    margin-left: auto;
+  }
+
+  .panel-body { padding: 1.25rem; }
+
+  /* VESSEL SELECTOR */
+  .vessel-search-wrap {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+
+  .vessel-search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  #vessel-search {
+    width: 100%;
+    padding: 0.6rem 0.75rem 0.6rem 2.5rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #vessel-search:focus { border-color: var(--sky); }
+  #vessel-search::placeholder { color: var(--muted); }
+
+  .vessel-list {
+    max-height: 240px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: none;
+  }
+
+  .vessel-list.open { display: block; }
+
+  .vessel-list::-webkit-scrollbar { width: 4px; }
+  .vessel-list::-webkit-scrollbar-track { background: transparent; }
+  .vessel-list::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 2px; }
+
+  /* ADD NEW VESSEL button row */
+  .add-vessel-row {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.875rem;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: var(--sky);
+    border-bottom: none;
+    border-top: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .add-vessel-row:hover { background: rgba(56,189,248,0.08); }
+  .add-vessel-row.visible { display: flex; }
+
+  /* MODAL OVERLAY */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+  }
+
+  .modal::-webkit-scrollbar { width: 4px; }
+  .modal::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 2px; }
+
+  .modal-head {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-head h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--sky);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .modal-close:hover { color: var(--white); background: rgba(255,255,255,0.08); }
+
+  .modal-body { padding: 1.5rem; }
+
+  .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-field { display: flex; flex-direction: column; gap: 5px; }
+
+  .modal-field.full { grid-column: 1 / -1; }
+
+  .modal-field label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+  }
+
+  .modal-field label .optional {
+    color: var(--muted);
+    font-size: 0.62rem;
+    opacity: 0.6;
+    margin-left: 4px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .modal-field input {
+    padding: 0.55rem 0.75rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .modal-field input:focus { border-color: var(--sky); }
+  .modal-field input::placeholder { color: rgba(148,163,184,0.4); }
+
+  .modal-field input.required-empty { border-color: rgba(239,68,68,0.5); }
+
+  .modal-section-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--sky);
+    margin: 0.25rem 0 0.875rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-cancel {
+    padding: 0.55rem 1.25rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-cancel:hover { border-color: var(--muted); color: var(--white); }
+
+  .btn-save {
+    padding: 0.55rem 1.5rem;
+    background: linear-gradient(135deg, var(--steel), var(--cyan));
+    border: none;
+    border-radius: 8px;
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .btn-save:hover { opacity: 0.88; }
+
+  /* selected vessel chip */
+  .selected-chip {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.3);
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    margin-bottom: 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .selected-chip.visible { display: flex; }
+  .selected-chip .chip-name { font-weight: 600; color: var(--sky); }
+  .selected-chip .chip-dwt { font-size: 0.7rem; color: var(--muted); font-family: var(--mono); }
+  .selected-chip .chip-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 0 2px; }
+  .selected-chip .chip-clear:hover { color: var(--white); }
+
+  .vessel-item {
+    padding: 0.6rem 0.875rem;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .vessel-item:last-child { border-bottom: none; }
+  .vessel-item:hover { background: rgba(56,189,248,0.08); }
+  .vessel-item.selected { background: rgba(56,189,248,0.15); color: var(--sky); }
+
+  .vessel-item .vsl-name { font-weight: 500; }
+  .vessel-item .vsl-dwt { font-size: 0.7rem; font-family: var(--mono); color: var(--muted); }
+
+  /* VESSEL SPECS */
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .spec-box {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.625rem 0.75rem;
+  }
+
+  .spec-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+
+  .spec-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: var(--white);
+  }
+
+  .spec-unit {
+    font-size: 0.65rem;
+    color: var(--muted);
+    font-family: var(--font);
+    font-weight: 400;
+  }
+
+  /* FORM INPUTS */
+  .field-group { margin-bottom: 1rem; }
+
+  .field-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    margin-bottom: 0.375rem;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .input-wrap { position: relative; }
+
+  .input-wrap input, .input-wrap select {
+    width: 100%;
+    padding: 0.55rem 0.75rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    appearance: none;
+  }
+
+  .input-wrap input:focus,
+  .input-wrap select:focus { border-color: var(--sky); background: rgba(56,189,248,0.05); }
+
+  .input-suffix {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    pointer-events: none;
+  }
+
+  .input-wrap input { padding-right: 40px; }
+
+  select option { background: var(--navy-mid); }
+
+  /* DEDUCTIBLES */
+  .deduct-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* ZONE TABS */
+  .zone-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1rem;
+    background: rgba(255,255,255,0.04);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .zone-tab {
+    flex: 1;
+    padding: 0.4rem;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+    color: var(--muted);
+    border: none;
+    background: none;
+    font-family: var(--font);
+  }
+
+  .zone-tab.active {
+    background: var(--steel);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(37,99,160,0.4);
+  }
+
+  /* CALCULATE BUTTON */
+  .calc-btn {
+    width: 100%;
+    padding: 0.875rem;
+    background: linear-gradient(135deg, var(--steel), var(--cyan));
+    border: none;
+    border-radius: 10px;
+    color: var(--white);
+    font-family: var(--font);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: opacity 0.2s, transform 0.15s;
+    margin-top: 0.5rem;
+  }
+
+  .calc-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .calc-btn:active { transform: translateY(0); }
+
+  /* RIGHT COLUMN */
+  .results-col { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  /* RESULTS HERO */
+  .results-hero {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .results-hero { grid-template-columns: 1fr; }
+  }
+
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    transition: border-color 0.2s;
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .result-card.summer::before { background: linear-gradient(90deg, var(--sky), var(--cyan)); }
+  .result-card.winter::before { background: linear-gradient(90deg, #818cf8, #6366f1); }
+  .result-card.tropical::before { background: linear-gradient(90deg, var(--mint), #059669); }
+
+  .result-card.highlight {
+    border-color: rgba(56,189,248,0.4);
+    box-shadow: 0 0 30px rgba(56,189,248,0.08);
+  }
+
+  .rc-zone {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.375rem;
+  }
+
+  .rc-main {
+    font-size: 2.2rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .rc-main.summer { color: var(--sky); }
+  .rc-main.winter { color: #818cf8; }
+  .rc-main.tropical { color: var(--mint); }
+
+  .rc-unit { font-size: 0.75rem; color: var(--muted); margin-bottom: 1rem; }
+
+  .rc-breakdown {
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .rc-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+  }
+
+  .rc-row-label { color: var(--muted); }
+
+  .rc-row-val {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--white);
+  }
+
+  /* LIMITING FACTOR */
+  .limiting-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.5rem;
+  }
+
+  .limiting-badge.draft { background: rgba(56,189,248,0.15); color: var(--sky); border: 1px solid rgba(56,189,248,0.3); }
+  .limiting-badge.sf { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+  .limiting-badge.contract { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+  /* DETAILED BREAKDOWN TABLE */
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+
+  .breakdown-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  .breakdown-table th:not(:first-child) { text-align: right; }
+
+  .breakdown-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(56,189,248,0.06);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+
+  .breakdown-table td:first-child {
+    font-family: var(--font);
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .breakdown-table td:not(:first-child) { text-align: right; }
+
+  .breakdown-table tr:hover td { background: rgba(56,189,248,0.04); }
+
+  .breakdown-table tr.section-head td {
+    font-family: var(--font);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sky);
+    padding-top: 1rem;
+    background: none;
+  }
+
+  .breakdown-table tr.total td {
+    font-weight: 600;
+    border-top: 1px solid var(--border);
+    color: var(--sky);
+    padding-top: 0.75rem;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--muted);
+  }
+
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty-title { font-size: 1rem; font-weight: 500; margin-bottom: 0.375rem; color: var(--white); opacity: 0.5; }
+  .empty-sub { font-size: 0.8rem; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1rem 0;
+  }
+
+  /* SECTION SUBTITLE */
+  .section-sub {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* WARNING */
+  .warn-box {
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.78rem;
+    color: var(--amber);
+    margin-top: 0.75rem;
+    display: none;
+  }
+
+  .warn-box.visible { display: block; }
+
+  /* VESSEL DATA TAG */
+  .vsl-remark {
+    font-size: 0.68rem;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: #fca5a5;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    font-family: var(--mono);
+  }
+
+  footer a { color: var(--sky); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚓</div>
+    <div>
+      <div class="logo-text">DryIntake <span>AI</span></div>
+      <div class="logo-sub">ai-geoserves.com</div>
+    </div>
+  </div>
+  <div class="header-badge">● LIVE CALCULATOR</div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT: INPUT PANEL -->
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+
+    <!-- Vessel Selector -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">01 — Select Vessel</span>
+        <div class="panel-dot"></div>
+      </div>
+      <div class="panel-body">
+
+        <!-- Selected vessel chip -->
+        <div class="selected-chip" id="selected-chip">
+          <div>
+            <div class="chip-name" id="chip-name"></div>
+            <div class="chip-dwt" id="chip-dwt"></div>
+          </div>
+          <button class="chip-clear" onclick="clearVessel()">&#x2715; change</button>
+        </div>
+
+        <!-- Search box -->
+        <div class="vessel-search-wrap" id="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="vessel-search" placeholder="Search vessel name..." oninput="filterVessels(this.value)" onfocus="openDropdown()">
+        </div>
+
+        <!-- Dropdown -->
+        <div class="vessel-list" id="vessel-list">
+          <div class="add-vessel-row" id="add-vessel-row" onclick="openModal()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            &nbsp;Add new vessel
+          </div>
+        </div>
+
+        <div id="vessel-specs" style="display:none;">
+          <div class="section-sub">Vessel particulars</div>
+          <div class="spec-grid" id="spec-grid"></div>
+          <div id="remark-box"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voyage Parameters -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">02 — Voyage Parameters</span>
+        <div class="panel-dot"></div>
+      </div>
+      <div class="panel-body">
+
+        <div class="field-group">
+          <label class="field-label">Load Zone</label>
+          <div class="zone-tabs">
+            <button class="zone-tab active" onclick="setZone('summer', this)">Summer</button>
+            <button class="zone-tab" onclick="setZone('winter', this)">Winter</button>
+            <button class="zone-tab" onclick="setZone('tropical', this)">Tropical</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Draft Limitation (m)</label>
+          <div class="input-row">
+            <div class="input-wrap">
+              <input type="number" id="draft-limit" value="15.0" step="0.001" oninput="calc()">
+              <span class="input-suffix">m</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="density" value="1025" step="0.1" oninput="calc()">
+              <span class="input-suffix">kg/m³</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <small style="font-size:0.65rem;color:var(--muted);">Draft &nbsp;|&nbsp;</small>
+            <small style="font-size:0.65rem;color:var(--muted);">Density</small>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Stowage Factor</label>
+          <div class="input-row">
+            <div class="input-wrap">
+              <input type="number" id="sf-cuft" value="35.3147" step="0.0001" oninput="calc()">
+              <span class="input-suffix">ft³/t</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="sf-cumt" value="1.2" step="0.01" oninput="calc()" placeholder="auto">
+              <span class="input-suffix">m³/t</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <small style="font-size:0.65rem;color:var(--muted);">Cu ft/t &nbsp;|&nbsp;</small>
+            <small style="font-size:0.65rem;color:var(--muted);">Cu m/t</small>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Cargo Contract</label>
+          <div class="input-row">
+            <div class="input-wrap">
+              <input type="number" id="contract" value="38000" step="1" oninput="calc()">
+              <span class="input-suffix">MT</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="tolerance" value="0" step="0.1" min="0" oninput="calc()">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            <small style="font-size:0.65rem;color:var(--muted);">Quantity &nbsp;|&nbsp;</small>
+            <small style="font-size:0.65rem;color:var(--muted);">Tolerance</small>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="field-group">
+          <label class="field-label">Deductibles (MT)</label>
+          <div class="deduct-grid">
+            <div class="input-wrap">
+              <input type="number" id="d-ifo" value="410" step="1" oninput="calc()">
+              <span class="input-suffix">IFO</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="d-lsmgo" value="143" step="1" oninput="calc()">
+              <span class="input-suffix">LSMGO</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="d-fw" value="180" step="1" oninput="calc()">
+              <span class="input-suffix">F.Water</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="d-ballast" value="153" step="1" oninput="calc()">
+              <span class="input-suffix">Ballast</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="d-constant" value="211" step="1" oninput="calc()">
+              <span class="input-suffix">Constant</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="d-sag" value="0" step="1" oninput="calc()">
+              <span class="input-suffix">SAG</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="d-deductible" value="1097" step="1" oninput="calc()">
+              <span class="input-suffix">Deductible</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: RESULTS -->
+  <div class="results-col">
+
+    <div id="empty-state" class="panel" style="min-height:220px;display:flex;align-items:center;justify-content:center;">
+      <div class="empty-state">
+        <div class="empty-icon">⚓</div>
+        <div class="empty-title">Select a vessel to begin</div>
+        <div class="empty-sub">Choose a vessel from the list to calculate cargo intake</div>
+      </div>
+    </div>
+
+    <div id="results-area" style="display:none;">
+
+      <!-- ZONE CARDS -->
+      <div class="results-hero" id="zone-cards">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- DETAILED BREAKDOWN -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Full Calculation Breakdown</span>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <table class="breakdown-table" id="breakdown-table">
+            <!-- populated by JS -->
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  ai-dryintake-ai-geoserves.com &nbsp;·&nbsp; Dry Bulk Intake Calculator &nbsp;·&nbsp; <a href="https://ai-geoserves.com">ai-geoserves.com</a>
+  &nbsp;·&nbsp; Vessel DB: 88 vessels
+</footer>
+
+<script>
+const VSL_DB = [{"name":"CL SUZHOU","ssw_draft":14.45,"ssw_dwt":81119.0,"tpc":71.3,"grain_cap":97389.2,"beam":32.26,"loa":228.9,"fwa":332.0,"lightship":14072.2,"displacement":95191.2,"remark":null},{"name":"CL TAIZHOU","ssw_draft":14.45,"ssw_dwt":81119.0,"tpc":71.3,"grain_cap":97389.1,"beam":32.26,"loa":228.9,"fwa":332.0,"lightship":14017.4,"displacement":95136.0,"remark":null},{"name":"CL YANGZHOU","ssw_draft":14.45,"ssw_dwt":81061.0,"tpc":71.4,"grain_cap":97389.1,"beam":32.26,"loa":228.9,"fwa":332.0,"lightship":14075.0,"displacement":95136.0,"remark":null},{"name":"CL ZHENJIANG","ssw_draft":14.468,"ssw_dwt":81121.0,"tpc":71.3,"grain_cap":97389.1,"beam":32.26,"loa":228.9,"fwa":332.0,"lightship":14015.2,"displacement":95136.2,"remark":null},{"name":"E TRACER","ssw_draft":12.8,"ssw_dwt":56615.4,"tpc":58.8,"grain_cap":71634.1,"beam":32.26,"loa":189.99,"fwa":288.0,"lightship":11065.7,"displacement":67681.1,"remark":null},{"name":"E TRANSPORTER","ssw_draft":12.8,"ssw_dwt":56745.0,"tpc":58.0,"grain_cap":71634.1,"beam":32.26,"loa":189.99,"fwa":288.0,"lightship":10936.0,"displacement":67681.0,"remark":null},{"name":"Gemma","ssw_draft":22.1,"ssw_dwt":315004.0,"tpc":175.0,"grain_cap":182796.7,"beam":57.0,"loa":329.787,"fwa":503.0,"lightship":38042.0,"displacement":353046.0,"remark":null},{"name":"Glory Trader","ssw_draft":14.13,"ssw_dwt":77684.0,"tpc":68.78,"grain_cap":92151.146,"beam":32.26,"loa":224.79,"fwa":321.0,"lightship":10682.0,"displacement":88366.0,"remark":null},{"name":"Great Dragon 9","ssw_draft":14.62,"ssw_dwt":79420.7,"tpc":70.3,"grain_cap":94012.0,"beam":32.26,"loa":229.0,"fwa":332.0,"lightship":13867.1,"displacement":93287.8,"remark":null},{"name":"Ionic Patris","ssw_draft":14.45,"ssw_dwt":84850.0,"tpc":74.7,"grain_cap":100700.0,"beam":35.0,"loa":228.9,"fwa":328.0,"lightship":13481.0,"displacement":98331.0,"remark":null},{"name":"Karlovasi","ssw_draft":14.486,"ssw_dwt":82354.0,"tpc":71.05,"grain_cap":98376.0,"beam":32.26,"loa":228.99,"fwa":333.0,"lightship":12444.0,"displacement":94798.0,"remark":null},{"name":"Mia LR","ssw_draft":14.429,"ssw_dwt":81678.0,"tpc":70.64,"grain_cap":97246.72,"beam":32.26,"loa":228.99,"fwa":333.0,"lightship":12683.0,"displacement":94361.0,"remark":null},{"name":"Majestic Star","ssw_draft":14.45,"ssw_dwt":81878.0,"tpc":72.0,"grain_cap":97249.8,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13585.1,"displacement":95463.1,"remark":null},{"name":"Peace Garden","ssw_draft":14.218,"ssw_dwt":76433.0,"tpc":69.4,"grain_cap":91171.0,"beam":32.26,"loa":225.0,"fwa":324.0,"lightship":13421.64,"displacement":89854.64,"remark":null},{"name":"SBI Achilles","ssw_draft":13.01,"ssw_dwt":61192.0,"tpc":61.4,"grain_cap":77674.69,"beam":32.24,"loa":199.98,"fwa":294.0,"lightship":11021.0,"displacement":72213.0,"remark":null},{"name":"SBI APOLLO","ssw_draft":12.948,"ssw_dwt":60437.0,"tpc":60.0,"grain_cap":76121.3,"beam":32.25,"loa":199.99,"fwa":296.0,"lightship":10872.0,"displacement":71309.0,"remark":null},{"name":"SBI ATHENA","ssw_draft":13.3,"ssw_dwt":63235.4,"tpc":62.2,"grain_cap":77786.4,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11850.0,"displacement":75085.4,"remark":null},{"name":"SBI BOLEREO","ssw_draft":14.45,"ssw_dwt":81210.2,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13585.8,"displacement":94796.0,"remark":null},{"name":"SBI BRAVO","ssw_draft":13.026,"ssw_dwt":61587.0,"tpc":60.6,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":10855.5,"displacement":72442.5,"remark":null},{"name":"SBI CAPOEIRA","ssw_draft":14.45,"ssw_dwt":81253.0,"tpc":71.7,"grain_cap":96828.3,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13543.0,"displacement":94796.0,"remark":null},{"name":"SBI CARIOCA","ssw_draft":14.45,"ssw_dwt":81262.2,"tpc":71.7,"grain_cap":96828.3,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13533.819,"displacement":94796.019,"remark":null},{"name":"SBI CONGA","ssw_draft":14.45,"ssw_dwt":81167.1,"tpc":71.7,"grain_cap":96828.5,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13598.8,"displacement":94765.9,"remark":null},{"name":"SBI Cougar","ssw_draft":13.3,"ssw_dwt":63590.5,"tpc":62.3,"grain_cap":78721.1,"beam":32.26,"loa":199.9,"fwa":301.0,"lightship":11606.0,"displacement":75196.5,"remark":null},{"name":"SBI CRONOS","ssw_draft":13.01,"ssw_dwt":61305.0,"tpc":61.4,"grain_cap":77674.69,"beam":32.24,"loa":199.98,"fwa":294.0,"lightship":11017.0,"displacement":72322.0,"remark":null},{"name":"SBI ECHO","ssw_draft":13.01,"ssw_dwt":61258.0,"tpc":61.4,"grain_cap":77560.0,"beam":32.24,"loa":199.98,"fwa":294.0,"lightship":11100.0,"displacement":72358.0,"remark":null},{"name":"SBI ELECTRA","ssw_draft":14.45,"ssw_dwt":82032.0,"tpc":72.0,"grain_cap":97250.0,"beam":32.26,"loa":229.0,"fwa":332.0,"lightship":13410.0,"displacement":95442.0,"remark":null},{"name":"SBI FLAMENCO","ssw_draft":14.45,"ssw_dwt":82052.0,"tpc":72.0,"grain_cap":97250.0,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13411.0,"displacement":95463.0,"remark":null},{"name":"SBI Gemini","ssw_draft":13.3,"ssw_dwt":63654.9,"tpc":62.3,"grain_cap":78750.0,"beam":32.26,"loa":199.9,"fwa":300.0,"lightship":11500.0,"displacement":75154.9,"remark":null},{"name":"SBI HERA","ssw_draft":12.948,"ssw_dwt":60425.0,"tpc":59.8,"grain_cap":76121.3,"beam":32.25,"loa":199.99,"fwa":296.0,"lightship":10884.0,"displacement":71309.0,"remark":null},{"name":"SBI HERCULES","ssw_draft":13.3,"ssw_dwt":63313.9,"tpc":62.2,"grain_cap":77788.3,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11771.74,"displacement":75085.64,"remark":null},{"name":"SBI HERMES","ssw_draft":13.01,"ssw_dwt":61272.0,"tpc":61.4,"grain_cap":77674.69,"beam":32.24,"loa":199.98,"fwa":294.0,"lightship":11050.0,"displacement":72322.0,"remark":null},{"name":"SBI HYDRA","ssw_draft":13.026,"ssw_dwt":61115.0,"tpc":60.4,"grain_cap":77546.3,"beam":32.24,"loa":199.9,"fwa":299.0,"lightship":11282.0,"displacement":72397.0,"remark":null},{"name":"SBI HYPERION","ssw_draft":13.026,"ssw_dwt":61171.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":11226.0,"displacement":72397.0,"remark":null},{"name":"SBI Jaguar","ssw_draft":13.3,"ssw_dwt":63512.56,"tpc":62.3,"grain_cap":78721.1,"beam":32.26,"loa":199.9,"fwa":301.0,"lightship":11684.04,"displacement":75196.6,"remark":null},{"name":"SBI JIVE","ssw_draft":14.45,"ssw_dwt":81252.1,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13543.0,"displacement":94795.1,"remark":null},{"name":"SBI LAMBADA","ssw_draft":14.472,"ssw_dwt":81272.4,"tpc":71.7,"grain_cap":96828.3,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13523.6,"displacement":94796.0,"remark":null},{"name":"SBI LEO","ssw_draft":13.026,"ssw_dwt":61614.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":10783.0,"displacement":72397.0,"remark":null},{"name":"SBI Libra","ssw_draft":13.3,"ssw_dwt":63679.2,"tpc":62.3,"grain_cap":78750.0,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11517.39,"displacement":75196.59,"remark":null},{"name":"SBI LYNX","ssw_draft":14.45,"ssw_dwt":82013.0,"tpc":71.7,"grain_cap":97738.5,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13449.8,"displacement":95462.8,"remark":null},{"name":"SBI LYRA","ssw_draft":13.026,"ssw_dwt":61559.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":10838.0,"displacement":72397.0,"remark":null},{"name":"SBI MACARENA","ssw_draft":14.45,"ssw_dwt":81197.0,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13598.29,"displacement":94795.29,"remark":null},{"name":"SBI MAIA","ssw_draft":13.026,"ssw_dwt":61105.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":299.0,"lightship":11292.0,"displacement":72397.0,"remark":null},{"name":"SBI MAZURKA","ssw_draft":14.472,"ssw_dwt":81232.0,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13563.5,"displacement":72397.0,"remark":null},{"name":"SBI ORION","ssw_draft":13.3,"ssw_dwt":63328.0,"tpc":62.2,"grain_cap":77788.3,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11757.7,"displacement":75085.7,"remark":null},{"name":"SBI PARAPARA","ssw_draft":14.45,"ssw_dwt":81183.0,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13613.0,"displacement":94796.0,"remark":null},{"name":"SBI PEGASUS","ssw_draft":13.3,"ssw_dwt":63371.0,"tpc":61.5,"grain_cap":77788.3,"beam":32.26,"loa":199.99,"fwa":205.0,"lightship":11714.7,"displacement":75085.7,"remark":null},{"name":"SBI PERSEUS","ssw_draft":13.3,"ssw_dwt":63267.4,"tpc":62.24,"grain_cap":77786.4,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11818.31,"displacement":75085.71,"remark":null},{"name":"SBI PHOEBE","ssw_draft":13.3,"ssw_dwt":63275.7,"tpc":62.24,"grain_cap":77786.4,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11809.98,"displacement":75085.68,"remark":null},{"name":"SBI PHOENIX","ssw_draft":13.3,"ssw_dwt":63304.2,"tpc":62.2,"grain_cap":77788.3,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11781.49,"displacement":75085.69,"remark":null},{"name":"SBI PISCES","ssw_draft":13.3,"ssw_dwt":63650.0,"tpc":62.3,"grain_cap":76919.57,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11546.61,"displacement":75196.6,"remark":null},{"name":"SBI POSEIDON","ssw_draft":12.948,"ssw_dwt":60432.0,"tpc":60.0,"grain_cap":76121.3,"beam":32.25,"loa":199.99,"fwa":296.0,"lightship":10877.0,"displacement":71309.0,"remark":null},{"name":"SBI Puma","ssw_draft":13.3,"ssw_dwt":63542.2,"tpc":62.3,"grain_cap":78411.1,"beam":32.26,"loa":199.9,"fwa":301.0,"lightship":11654.3,"displacement":75196.5,"remark":null},{"name":"SBI Puro","ssw_draft":18.332,"ssw_dwt":181060.0,"tpc":125.6,"grain_cap":197101.3076,"beam":45.0,"loa":292.0,"fwa":413.0,"lightship":26531.0,"displacement":207591.0,"remark":null},{"name":"SBI REGGAE","ssw_draft":14.45,"ssw_dwt":81214.0,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13585.8,"displacement":94799.8,"remark":null},{"name":"SBI ROCK","ssw_draft":14.45,"ssw_dwt":82057.0,"tpc":72.0,"grain_cap":97250.0,"beam":32.27,"loa":229.0,"fwa":330.0,"lightship":13405.8,"displacement":95462.8,"remark":null},{"name":"SBI RUMBA","ssw_draft":14.467,"ssw_dwt":84867.0,"tpc":74.8,"grain_cap":100702.88,"beam":35.0,"loa":228.95,"fwa":328.0,"lightship":13464.0,"displacement":98331.0,"remark":null},{"name":"SBI SAMBA","ssw_draft":14.467,"ssw_dwt":84867.0,"tpc":74.8,"grain_cap":100702.88,"beam":35.0,"loa":228.95,"fwa":328.0,"lightship":13464.0,"displacement":98331.0,"remark":null},{"name":"SBI SAMSON","ssw_draft":13.3,"ssw_dwt":63313.0,"tpc":62.2,"grain_cap":77786.4,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11809.98,"displacement":76941.9,"remark":"DRAFT AT MARKS FOR 14.45 METERS"},{"name":"SBI SOUSTA","ssw_draft":14.45,"ssw_dwt":81167.1,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13628.9,"displacement":91993.1,"remark":null},{"name":"SBI SUBARU","ssw_draft":13.026,"ssw_dwt":61571.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":10826.0,"displacement":72397.0,"remark":null},{"name":"SBI SWING","ssw_draft":14.45,"ssw_dwt":81197.7,"tpc":71.7,"grain_cap":96828.25,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13558.93,"displacement":94756.63,"remark":null},{"name":"SBI TANGO","ssw_draft":13.01,"ssw_dwt":61192.0,"tpc":61.4,"grain_cap":77674.69,"beam":32.24,"loa":199.98,"fwa":200.0,"lightship":11130.0,"displacement":72322.0,"remark":null},{"name":"SBI TETHYS","ssw_draft":13.026,"ssw_dwt":61190.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":11207.0,"displacement":72397.0,"remark":null},{"name":"SBI THALIA","ssw_draft":13.3,"ssw_dwt":63241.2,"tpc":62.2,"grain_cap":77786.3,"beam":32.26,"loa":199.9,"fwa":302.0,"lightship":11844.5,"displacement":75085.7,"remark":null},{"name":"SBI URSA","ssw_draft":13.026,"ssw_dwt":61602.0,"tpc":60.4,"grain_cap":77546.2,"beam":32.24,"loa":199.9,"fwa":300.0,"lightship":10795.0,"displacement":72397.0,"remark":null},{"name":"SBI Virgo","ssw_draft":13.3,"ssw_dwt":63629.0,"tpc":62.3,"grain_cap":78750.0,"beam":32.316,"loa":199.9,"fwa":302.0,"lightship":11567.61,"displacement":75196.61,"remark":null},{"name":"SBI ZEUS","ssw_draft":12.948,"ssw_dwt":60414.0,"tpc":59.8,"grain_cap":76121.3,"beam":32.25,"loa":199.99,"fwa":296.0,"lightship":10895.0,"displacement":71309.0,"remark":null},{"name":"SBI ZUMBA","ssw_draft":14.45,"ssw_dwt":81174.7,"tpc":71.7,"grain_cap":96831.12762,"beam":32.26,"loa":229.0,"fwa":330.0,"lightship":13613.3,"displacement":94788.0,"remark":null},{"name":"SELINA H","ssw_draft":14.475,"ssw_dwt":80716.0,"tpc":70.97,"grain_cap":94596.2,"beam":32.26,"loa":229.0,"fwa":329.0,"lightship":12873.0,"displacement":93589.0,"remark":null},{"name":"SHANDONG HONG","ssw_draft":14.267,"ssw_dwt":76116.0,"tpc":68.58,"grain_cap":90540.1,"beam":32.26,"loa":217.0,"fwa":324.0,"lightship":12882.0,"displacement":88998.0,"remark":null},{"name":"STAR JENNIFER","ssw_draft":14.429,"ssw_dwt":82209.0,"tpc":70.21,"grain_cap":97186.1,"beam":32.26,"loa":228.99,"fwa":334.0,"lightship":11571.0,"displacement":93780.0,"remark":null},{"name":"TESS 58","ssw_draft":12.8,"ssw_dwt":58328.0,"tpc":57.5,"grain_cap":72360.0,"beam":32.26,"loa":189.99,"fwa":280.0,"lightship":10500.0,"displacement":68828.0,"remark":null},{"name":"TRANS AFRICA","ssw_draft":14.45,"ssw_dwt":81253.0,"tpc":71.7,"grain_cap":96282.2,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13543.0,"displacement":94796.0,"remark":null},{"name":"TRISTAR PROSPERITY","ssw_draft":12.8,"ssw_dwt":56824.0,"tpc":58.8,"grain_cap":71634.1,"beam":32.26,"loa":189.9,"fwa":288.0,"lightship":10870.0,"displacement":67694.0,"remark":null},{"name":"Vulcania","ssw_draft":14.467,"ssw_dwt":82035.0,"tpc":72.0,"grain_cap":97249.8,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13668.9,"displacement":95703.9,"remark":null},{"name":"Western Oslo","ssw_draft":13.5,"ssw_dwt":63653.5,"tpc":61.7,"grain_cap":78325.8,"beam":32.26,"loa":199.9,"fwa":305.0,"lightship":11623.1,"displacement":75276.6,"remark":null},{"name":"YANGZE 11","ssw_draft":14.45,"ssw_dwt":82027.4,"tpc":72.0,"grain_cap":97249.8,"beam":32.26,"loa":229.0,"fwa":331.0,"lightship":13435.2,"displacement":95462.6,"remark":null},{"name":"Navios felicity","ssw_draft":14.5,"ssw_dwt":81962.0,"tpc":71.1,"grain_cap":94892.0,"beam":32.24,"loa":228.9,"fwa":335.0,"lightship":13444.0,"displacement":95406.0,"remark":null},{"name":"Navigare Bacca","ssw_draft":13.01,"ssw_dwt":61213.0,"tpc":61.4,"grain_cap":77674.69,"beam":32.24,"loa":199.98,"fwa":294.0,"lightship":11017.0,"displacement":72230.0,"remark":null},{"name":"Elbabe","ssw_draft":12.948,"ssw_dwt":60438.0,"tpc":60.0,"grain_cap":76121.3,"beam":32.25,"loa":199.99,"fwa":296.0,"lightship":10871.0,"displacement":71309.0,"remark":null},{"name":"VISAYAS","ssw_draft":12.715,"ssw_dwt":56136.0,"tpc":56.09,"grain_cap":71345.8,"beam":32.3,"loa":189.99,"fwa":293.0,"lightship":9806.0,"displacement":65942.0,"remark":null},{"name":"CETUS OMURA","ssw_draft":10.7,"ssw_dwt":43532.4,"tpc":54.7,"grain_cap":55299.8,"beam":30.0,"loa":189.99,"fwa":245.0,"lightship":10019.4,"displacement":53551.8,"remark":null},{"name":"CETUS SPADE","ssw_draft":10.7,"ssw_dwt":43343.6,"tpc":54.7,"grain_cap":55299.8,"beam":30.02,"loa":189.99,"fwa":223.0,"lightship":10206.6,"displacement":53550.2,"remark":null},{"name":"ANNA M","ssw_draft":12.49,"ssw_dwt":53461.97,"tpc":56.4,"grain_cap":65044.98,"beam":32.26,"loa":189.99,"fwa":283.0,"lightship":10246.23,"displacement":63708.2,"remark":null},{"name":"SEA KSANTI","ssw_draft":11.614,"ssw_dwt":45429.0,"tpc":51.21,"grain_cap":56269.5,"beam":30.4,"loa":182.99,"fwa":265.5,"lightship":8956.0,"displacement":54385.0,"remark":null},{"name":"UNION EXPLORER","ssw_draft":13.0,"ssw_dwt":57292.5,"tpc":57.3,"grain_cap":69496.0,"beam":32.26,"loa":190.0,"fwa":280.0,"lightship":10503.0,"displacement":67795.0,"remark":null},{"name":"DOLPHIN 79","ssw_draft":13.995,"ssw_dwt":75709.0,"tpc":66.6,"grain_cap":89200.0,"beam":32.26,"loa":225.0,"fwa":320.0,"lightship":9867.0,"displacement":null,"remark":null},{"name":"MAPLE MARINA","ssw_draft":10.998,"ssw_dwt":37194.0,"tpc":46.13,"grain_cap":47899.3,"beam":27.8,"loa":186.4,"fwa":120.0,"lightship":8142.0,"displacement":null,"remark":null}];
+
+let selectedVessel = null;
+let activeZone = 'summer';
+let filteredVessels = [...VSL_DB];
+let dropdownOpen = false;
+
+function n(v, d=0) {
+  if (v == null || isNaN(v)) return '—';
+  return Number(v).toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
+}
+
+function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+// ---- DROPDOWN LOGIC ----
+
+function openDropdown() {
+  document.getElementById('vessel-list').classList.add('open');
+  dropdownOpen = true;
+}
+
+function closeDropdown() {
+  document.getElementById('vessel-list').classList.remove('open');
+  dropdownOpen = false;
+}
+
+// Close on outside click
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('search-wrap');
+  const list = document.getElementById('vessel-list');
+  if (!wrap.contains(e.target) && !list.contains(e.target)) {
+    closeDropdown();
+  }
+});
+
+function renderVesselList() {
+  const list = document.getElementById('vessel-list');
+  const addRow = document.getElementById('add-vessel-row');
+  const q = document.getElementById('vessel-search').value.trim();
+
+  const items = filteredVessels.map(vsl => `
+    <div class="vessel-item" onclick="selectVessel(${VSL_DB.indexOf(vsl)})">
+      <span class="vsl-name">${vsl.name}</span>
+      <span class="vsl-dwt">${n(vsl.ssw_dwt)} DWT</span>
+    </div>
+  `).join('');
+
+  // Insert items before the add row
+  addRow.insertAdjacentHTML('beforebegin', items);
+  // Clear old items (keep add row)
+  const oldItems = list.querySelectorAll('.vessel-item');
+  oldItems.forEach(el => el.remove());
+  addRow.insertAdjacentHTML('beforebegin', items);
+
+  // Show add-vessel-row only when search has text but no match, or always
+  // Per spec: show when vessel not available in dropdown
+  if (q && filteredVessels.length === 0) {
+    addRow.classList.add('visible');
+  } else {
+    addRow.classList.remove('visible');
+    // Still show it always at bottom when list open (good UX)
+    addRow.classList.add('visible');
+  }
+}
+
+function filterVessels(q) {
+  filteredVessels = q ? VSL_DB.filter(vsl => vsl.name.toLowerCase().includes(q.toLowerCase())) : [...VSL_DB];
+  rebuildList();
+  openDropdown();
+}
+
+function rebuildList() {
+  const list = document.getElementById('vessel-list');
+  const addRow = document.getElementById('add-vessel-row');
+  const q = document.getElementById('vessel-search').value.trim();
+
+  // Remove all vessel-items
+  list.querySelectorAll('.vessel-item').forEach(el => el.remove());
+
+  // Insert fresh items before the add row
+  const html = filteredVessels.map(vsl => `
+    <div class="vessel-item" onclick="selectVessel(${VSL_DB.indexOf(vsl)})">
+      <span class="vsl-name">${vsl.name}</span>
+      <span class="vsl-dwt">${n(vsl.ssw_dwt)} DWT</span>
+    </div>
+  `).join('');
+  addRow.insertAdjacentHTML('beforebegin', html);
+
+  // Add vessel row: show when no results found OR always as bottom option
+  if (filteredVessels.length === 0) {
+    addRow.classList.add('visible');
+    addRow.querySelector('span') && (addRow.querySelector('span').textContent = ' Add "' + q + '" as new vessel');
+  } else {
+    // Show add row only when there's a search query (user might want to add if not exact match)
+    if (q) {
+      addRow.classList.add('visible');
+    } else {
+      addRow.classList.remove('visible');
+    }
+  }
+}
+
+function selectVessel(idx) {
+  // idx might be -1 for custom-added vessels not in VSL_DB
+  let vsl;
+  if (idx >= 0) {
+    vsl = VSL_DB[idx];
+  } else {
+    // search by name from filteredVessels (custom added)
+    return;
+  }
+  selectedVessel = vsl;
+
+  // Show chip, hide search
+  document.getElementById('chip-name').textContent = vsl.name;
+  document.getElementById('chip-dwt').textContent = n(vsl.ssw_dwt) + ' DWT  ·  TPC ' + vsl.tpc;
+  document.getElementById('selected-chip').classList.add('visible');
+  document.getElementById('search-wrap').style.display = 'none';
+  closeDropdown();
+  document.getElementById('vessel-search').value = '';
+
+  showVesselSpecs();
+  calc();
+}
+
+function selectVesselByObj(vsl) {
+  selectedVessel = vsl;
+  document.getElementById('chip-name').textContent = vsl.name;
+  document.getElementById('chip-dwt').textContent = n(vsl.ssw_dwt) + ' DWT  ·  TPC ' + vsl.tpc;
+  document.getElementById('selected-chip').classList.add('visible');
+  document.getElementById('search-wrap').style.display = 'none';
+  closeDropdown();
+  document.getElementById('vessel-search').value = '';
+  showVesselSpecs();
+  calc();
+}
+
+function clearVessel() {
+  selectedVessel = null;
+  document.getElementById('selected-chip').classList.remove('visible');
+  document.getElementById('search-wrap').style.display = 'block';
+  document.getElementById('vessel-specs').style.display = 'none';
+  document.getElementById('vessel-search').value = '';
+  filteredVessels = [...VSL_DB];
+  rebuildList();
+  document.getElementById('empty-state').style.display = 'flex';
+  document.getElementById('results-area').style.display = 'none';
+}
+
+function showVesselSpecs() {
+  if (!selectedVessel) return;
+  const vsl = selectedVessel;
+  document.getElementById('vessel-specs').style.display = 'block';
+  document.getElementById('spec-grid').innerHTML = `
+    <div class="spec-box">
+      <div class="spec-label">SSW Draft</div>
+      <div class="spec-value">${vsl.ssw_draft} <span class="spec-unit">m</span></div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">SSW DWT</div>
+      <div class="spec-value">${n(vsl.ssw_dwt)} <span class="spec-unit">MT</span></div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">TPC</div>
+      <div class="spec-value">${vsl.tpc}</div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">Grain Cap</div>
+      <div class="spec-value">${vsl.grain_cap ? n(vsl.grain_cap) + '<span class="spec-unit"> m³</span>' : '<span style="color:var(--amber);font-size:0.7rem;">Not provided</span>'}</div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">FWA</div>
+      <div class="spec-value">${vsl.fwa} <span class="spec-unit">mm</span></div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">Lightship</div>
+      <div class="spec-value">${vsl.lightship ? n(vsl.lightship) + '<span class="spec-unit"> MT</span>' : '<span style="color:var(--muted);font-size:0.7rem;">—</span>'}</div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">LOA</div>
+      <div class="spec-value">${vsl.loa ? vsl.loa + '<span class="spec-unit"> m</span>' : '<span style="color:var(--muted);font-size:0.7rem;">—</span>'}</div>
+    </div>
+    <div class="spec-box">
+      <div class="spec-label">Beam</div>
+      <div class="spec-value">${vsl.beam ? vsl.beam + '<span class="spec-unit"> m</span>' : '<span style="color:var(--muted);font-size:0.7rem;">—</span>'}</div>
+    </div>
+  `;
+  const rb = document.getElementById('remark-box');
+  rb.innerHTML = vsl.remark ? `<span class="vsl-remark">⚠ ${vsl.remark}</span>` : '';
+}
+
+// ---- MODAL ----
+
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+  // Pre-fill name from search
+  const q = document.getElementById('vessel-search').value.trim();
+  if (q) document.getElementById('m-name').value = q;
+  document.getElementById('modal-error').style.display = 'none';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  // Clear form
+  ['m-name','m-ssw-draft','m-ssw-dwt','m-tpc','m-fwa','m-grain','m-lightship','m-displacement','m-beam','m-loa','m-remark']
+    .forEach(id => { document.getElementById(id).value = ''; document.getElementById(id).classList.remove('required-empty'); });
+  document.getElementById('modal-error').style.display = 'none';
+}
+
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function saveNewVessel() {
+  const name = document.getElementById('m-name').value.trim();
+  const sswDraft = parseFloat(document.getElementById('m-ssw-draft').value);
+  const sswDwt = parseFloat(document.getElementById('m-ssw-dwt').value);
+  const tpc = parseFloat(document.getElementById('m-tpc').value);
+  const fwa = parseFloat(document.getElementById('m-fwa').value);
+
+  // Validate required
+  let hasError = false;
+  const err = document.getElementById('modal-error');
+  ['m-name','m-ssw-draft','m-ssw-dwt','m-tpc','m-fwa'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.classList.add('required-empty'); hasError = true; }
+    else el.classList.remove('required-empty');
+  });
+
+  if (hasError) {
+    err.textContent = 'Please fill in all required fields (Vessel Name, SSW Draft, SSW DWT, TPC, FWA).';
+    err.style.display = 'block';
+    return;
+  }
+
+  // Check duplicate
+  if (VSL_DB.find(v => v.name.toLowerCase() === name.toLowerCase())) {
+    err.textContent = 'A vessel with this name already exists in the database.';
+    err.style.display = 'block';
+    return;
+  }
+
+  const grainRaw = document.getElementById('m-grain').value;
+  const newVessel = {
+    name,
+    ssw_draft: sswDraft,
+    ssw_dwt: sswDwt,
+    tpc,
+    fwa,
+    grain_cap: grainRaw ? parseFloat(grainRaw) : null,
+    lightship: document.getElementById('m-lightship').value ? parseFloat(document.getElementById('m-lightship').value) : null,
+    displacement: document.getElementById('m-displacement').value ? parseFloat(document.getElementById('m-displacement').value) : null,
+    beam: document.getElementById('m-beam').value ? parseFloat(document.getElementById('m-beam').value) : null,
+    loa: document.getElementById('m-loa').value ? parseFloat(document.getElementById('m-loa').value) : null,
+    remark: document.getElementById('m-remark').value.trim() || null,
+    isCustom: true
+  };
+
+  VSL_DB.push(newVessel);
+  filteredVessels = [...VSL_DB];
+  closeModal();
+  selectVesselByObj(newVessel);
+}
+
+// ---- ZONE / CALC ----
+
+function setZone(zone, btn) {
+  activeZone = zone;
+  document.querySelectorAll('.zone-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  calc();
+}
+
+function calcZone(vsl, zone) {
+  const draftLimit = v('draft-limit');
+  const density = v('density');
+  const sfCuMt = v('sf-cumt');
+  const contract = v('contract');
+  const tolerance = v('tolerance');
+  const ifo = v('d-ifo');
+  const lsmgo = v('d-lsmgo');
+  const fw = v('d-fw');
+  const ballast = v('d-ballast');
+  const constant = v('d-constant');
+  const sag = v('d-sag');
+  const deductible = v('d-deductible');
+
+  let sswDraft = vsl.ssw_draft;
+  let zoneDraft, zoneDWT;
+
+  if (zone === 'summer') {
+    zoneDraft = sswDraft;
+    zoneDWT = vsl.ssw_dwt;
+  } else if (zone === 'winter') {
+    const allow = vsl.ssw_dwt / 48;
+    zoneDWT = vsl.ssw_dwt - allow;
+    zoneDraft = sswDraft - allow / (vsl.tpc * 100);
+  } else {
+    const allow = vsl.ssw_dwt / 48;
+    zoneDWT = vsl.ssw_dwt + allow;
+    zoneDraft = sswDraft + allow / (vsl.tpc * 100);
+  }
+
+  const fwaCorrection = -vsl.fwa * vsl.tpc * 0.001 * (1025 - density) / 25;
+  const dwtAfterAll = zoneDWT + fwaCorrection;
+  const draftDiff = draftLimit - sswDraft;
+  const dwtAtDraftLimit = zoneDWT + (draftDiff * vsl.tpc * 100);
+
+  const loadableBasisDraft = Math.min(dwtAfterAll, dwtAtDraftLimit) - ifo - lsmgo - fw - ballast - constant + sag - deductible;
+
+  // SF check — null grain_cap = CUBICS NOT AVAILABLE
+  const hasCubics = vsl.grain_cap != null;
+  const loadableBasisSF = hasCubics ? vsl.grain_cap / sfCuMt : Infinity;
+
+  const contractMax = contract * (1 + tolerance / 100);
+  const loadable = Math.min(loadableBasisDraft, loadableBasisSF, contractMax);
+
+  let limitingFactor = 'draft';
+  if (hasCubics && loadableBasisSF < loadableBasisDraft && loadableBasisSF < contractMax) limitingFactor = 'sf';
+  else if (contractMax < loadableBasisDraft && (!hasCubics || contractMax < loadableBasisSF)) limitingFactor = 'contract';
+
+  return {
+    zoneDWT, dwtAfterAll, loadableBasisDraft,
+    loadableBasisSF, contractMax, loadable, limitingFactor,
+    zoneDraft, fwaCorrection, dwtAtDraftLimit, hasCubics,
+    totalDeductibles: ifo + lsmgo + fw + ballast + constant - sag + deductible
+  };
+}
+
+function calc() {
+  if (!selectedVessel) return;
+  const vsl = selectedVessel;
+  const zones = ['summer','winter','tropical'];
+  const results = {};
+  zones.forEach(z => { results[z] = calcZone(vsl, z); });
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('results-area').style.display = 'block';
+
+  const zoneLabels = { summer: 'Summer Zone', winter: 'Winter Zone', tropical: 'Tropical Zone' };
+
+  document.getElementById('zone-cards').innerHTML = zones.map(z => {
+    const r = results[z];
+    const isActive = z === activeZone;
+    const lf = r.limitingFactor;
+    const lfLabel = lf === 'draft' ? 'Draft limited' : lf === 'sf' ? 'SF limited' : 'Contract limited';
+    const sfDisplay = r.hasCubics ? n(r.loadableBasisSF) : '<span style="color:var(--amber);font-size:0.7rem;">CUBICS N/A</span>';
+    return `
+      <div class="result-card ${z} ${isActive ? 'highlight' : ''}">
+        <div class="rc-zone">${zoneLabels[z]}</div>
+        <div class="rc-main ${z}">${n(r.loadable)}</div>
+        <div class="rc-unit">Metric Tons</div>
+        <span class="limiting-badge ${lf}">⬤ ${lfLabel}</span>
+        <div class="rc-breakdown">
+          <div class="rc-row"><span class="rc-row-label">Zone DWT</span><span class="rc-row-val">${n(r.zoneDWT)}</span></div>
+          <div class="rc-row"><span class="rc-row-label">Loadable (draft)</span><span class="rc-row-val">${n(r.loadableBasisDraft)}</span></div>
+          <div class="rc-row"><span class="rc-row-label">Loadable (SF)</span><span class="rc-row-val">${sfDisplay}</span></div>
+          <div class="rc-row"><span class="rc-row-label">Contract max</span><span class="rc-row-val">${n(r.contractMax)}</span></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const ifo = v('d-ifo'), lsmgo = v('d-lsmgo'), fw = v('d-fw');
+  const ballast = v('d-ballast'), constant = v('d-constant'), sag = v('d-sag');
+  const deductible = v('d-deductible');
+  const hasCubics = results['summer'].hasCubics;
+  const sfRowVal = hasCubics
+    ? zones.map(z => `<td>${n(results[z].loadableBasisSF)}</td>`).join('')
+    : `<td colspan="3" style="text-align:center;color:var(--amber);font-size:0.78rem;">CUBICS NOT AVAILABLE</td>`;
+
+  document.getElementById('breakdown-table').innerHTML = `
+    <thead><tr><th>Parameter</th><th>Summer</th><th>Winter</th><th>Tropical</th></tr></thead>
+    <tbody>
+      <tr class="section-head"><td colspan="4">Vessel Base Data</td></tr>
+      <tr><td>VSL DWT (SSW)</td>${zones.map(z=>`<td>${n(results[z].zoneDWT)}</td>`).join('')}</tr>
+      <tr><td>SSW Draft (m)</td>${zones.map(z=>`<td>${results[z].zoneDraft.toFixed(3)}</td>`).join('')}</tr>
+      <tr><td>FWA Correction (MT)</td>${zones.map(z=>`<td>${n(results[z].fwaCorrection,1)}</td>`).join('')}</tr>
+      <tr><td>DWT after density + FWA</td>${zones.map(z=>`<td>${n(results[z].dwtAfterAll)}</td>`).join('')}</tr>
+      <tr><td>DWT at draft limit</td>${zones.map(z=>`<td>${n(results[z].dwtAtDraftLimit)}</td>`).join('')}</tr>
+      <tr class="section-head"><td colspan="4">Deductibles</td></tr>
+      <tr><td>IFO</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(ifo)} MT</td></tr>
+      <tr><td>LSMGO</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(lsmgo)} MT</td></tr>
+      <tr><td>Fresh Water</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(fw)} MT</td></tr>
+      <tr><td>Ballast</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(ballast)} MT</td></tr>
+      <tr><td>Constant</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(constant)} MT</td></tr>
+      <tr><td>SAG (Observed)</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(sag)} MT</td></tr>
+      <tr><td>Deductible</td><td colspan="3" style="text-align:right;color:var(--muted);">${n(deductible)} MT</td></tr>
+      <tr class="section-head"><td colspan="4">Limiting Factors</td></tr>
+      <tr><td>Loadable basis Draft (MT)</td>${zones.map(z=>`<td>${n(results[z].loadableBasisDraft)}</td>`).join('')}</tr>
+      <tr><td>Loadable basis SF (MT)</td>${sfRowVal}</tr>
+      <tr><td>Contract max (MT)</td>${zones.map(z=>`<td>${n(results[z].contractMax)}</td>`).join('')}</tr>
+      <tr class="total"><td>LOADABLE (MIN OF ALL)</td>${zones.map(z=>`<td>${n(results[z].loadable)}</td>`).join('')}</tr>
+    </tbody>
+  `;
+}
+
+// Init
+rebuildList();
+</script>
+
+<!-- ADD NEW VESSEL MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add New Vessel</h2>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-section-label">Required particulars</div>
+      <div class="modal-grid">
+        <div class="modal-field full">
+          <label>Vessel Name</label>
+          <input type="text" id="m-name" placeholder="e.g. GREAT OCEAN">
+        </div>
+        <div class="modal-field">
+          <label>SSW Draft <span class="optional">(m)</span></label>
+          <input type="number" id="m-ssw-draft" placeholder="e.g. 14.45" step="0.001">
+        </div>
+        <div class="modal-field">
+          <label>SSW DWT <span class="optional">(MT)</span></label>
+          <input type="number" id="m-ssw-dwt" placeholder="e.g. 81000" step="1">
+        </div>
+        <div class="modal-field">
+          <label>TPC</label>
+          <input type="number" id="m-tpc" placeholder="e.g. 71.5" step="0.01">
+        </div>
+        <div class="modal-field">
+          <label>FWA <span class="optional">(mm)</span></label>
+          <input type="number" id="m-fwa" placeholder="e.g. 330" step="1">
+        </div>
+      </div>
+
+      <div class="modal-section-label">Optional particulars</div>
+      <div class="modal-grid">
+        <div class="modal-field">
+          <label>Grain Capacity <span class="optional">m³ — optional</span></label>
+          <input type="number" id="m-grain" placeholder="e.g. 97250" step="0.1">
+        </div>
+        <div class="modal-field">
+          <label>Lightship <span class="optional">MT — optional</span></label>
+          <input type="number" id="m-lightship" placeholder="e.g. 13500" step="1">
+        </div>
+        <div class="modal-field">
+          <label>Displacement <span class="optional">MT — optional</span></label>
+          <input type="number" id="m-displacement" placeholder="e.g. 95000" step="1">
+        </div>
+        <div class="modal-field">
+          <label>BEAM <span class="optional">m — optional</span></label>
+          <input type="number" id="m-beam" placeholder="e.g. 32.26" step="0.01">
+        </div>
+        <div class="modal-field">
+          <label>LOA <span class="optional">m — optional</span></label>
+          <input type="number" id="m-loa" placeholder="e.g. 229.0" step="0.01">
+        </div>
+        <div class="modal-field full">
+          <label>Remark <span class="optional">optional</span></label>
+          <input type="text" id="m-remark" placeholder="e.g. Draft at marks for 14.45m">
+        </div>
+      </div>
+
+      <div id="modal-error" style="font-size:0.78rem;color:var(--red);display:none;margin-top:0.5rem;"></div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveNewVessel()">Save &amp; Select Vessel</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
