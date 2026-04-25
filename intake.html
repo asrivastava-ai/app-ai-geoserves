@@ -1083,8 +1083,11 @@ async function loadVessels() {
     }
 
     vessels.sort((a, b) => a.name.localeCompare(b.name));
+    // Update both window and local references
     window.VSL_DB = vessels;
-    window.filteredVessels = [...vessels];
+    VSL_DB = vessels;
+    filteredVessels = [...vessels];
+    window.filteredVessels = filteredVessels;
     window.rebuildList();
     console.log('Loaded', vessels.length, 'vessels from Firestore');
   } catch(e) {
@@ -1118,6 +1121,7 @@ window.saveVesselToFirestore = async (vesselObj) => {
 <script>
 // VSL_DB will be populated from Firestore
 let VSL_DB = [];
+window.VSL_DB = VSL_DB;
 
 // VSL_DB loaded from Firestore
 
@@ -1190,7 +1194,7 @@ function filterVessels(q) {
   openDropdown();
 }
 
-function rebuildList() {
+window.rebuildList = function rebuildList() {
   const list = document.getElementById('vessel-list');
   const addRow = document.getElementById('add-vessel-row');
   const q = document.getElementById('vessel-search').value.trim();
@@ -1516,8 +1520,8 @@ function calc() {
   `;
 }
 
-// Init
-rebuildList();
+// Init - vessel list populated by Firestore after auth
+// rebuildList() called by loadVessels() after Firestore loads
 
 // Override saveNewVessel to also persist to Firestore
 const _origSave = window.saveNewVessel;
