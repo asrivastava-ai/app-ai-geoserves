@@ -257,8 +257,8 @@
       </div>
       <div style="overflow-x:auto;">
         <table class="users-table">
-          <thead><tr><th>User</th><th>Email</th><th>Company</th><th>Role</th><th>Provider</th><th>Joined</th><th>Last Seen</th></tr></thead>
-          <tbody id="users-tbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">Loading...</td></tr></tbody>
+          <thead><tr><th>User</th><th>Email</th><th>Company</th><th>Role</th><th>Provider</th><th>Apps Used</th><th>Joined</th><th>Last Seen</th></tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -298,13 +298,21 @@ async function saveUser(user, provider, extra={}) {
       company:extra.company||'', provider,
       role: user.email===ADMIN_EMAIL?'admin':'user',
       firstLogin:serverTimestamp(), lastLogin:serverTimestamp(),
-      profileComplete: user.email===ADMIN_EMAIL ? true : !!(user.displayName||extra.name)
+      profileComplete: user.email===ADMIN_EMAIL ? true : !!(user.displayName||extra.name),
+      appsUsed: extra.app ? [extra.app] : [],
+      lastApp: extra.app || null
     });
   } else {
     const upd = {lastLogin:serverTimestamp()};
     if (extra.name) upd.name = extra.name;
     if (extra.company!==undefined) upd.company = extra.company;
     if (extra.profileComplete!==undefined) upd.profileComplete = extra.profileComplete;
+    // Track app usage
+    if (extra.app) {
+      const existing = snap.data().appsUsed || [];
+      if (!existing.includes(extra.app)) upd.appsUsed = [...existing, extra.app];
+      upd.lastApp = extra.app;
+    }
     await updateDoc(ref, upd);
   }
   return (await getDoc(ref)).data();
@@ -433,9 +441,16 @@ window.showAdmin = async () => {
       const av=u.photoURL?`<span class="u-avatar"><img src="${u.photoURL}"></span>`:`<span class="u-avatar">${init}</span>`;
       const role=u.role==='admin'?'<span class="role-badge role-admin">⭐ Admin</span>':'<span class="role-badge role-user">User</span>';
       const prov=u.provider==='google'?'<span class="prov-badge prov-google">G Google</span>':'<span class="prov-badge prov-email">✉ Email</span>';
-      return `<tr><td>${av}<strong>${u.name||'—'}</strong></td><td style="font-family:var(--mono);font-size:.78rem;">${u.email}</td><td style="color:var(--muted);">${u.company||'—'}</td><td>${role}</td><td>${prov}</td><td style="font-family:var(--mono);font-size:.75rem;color:var(--muted);">${fmt(u.firstLogin)}</td><td style="font-family:var(--mono);font-size:.75rem;color:var(--muted);">${fmt(u.lastLogin)}</td></tr>`;
+      const appIcons = {intake:'⚓',cp:'📋',ops:'📊',laytime:'⏱️'};
+      const appNames = {intake:'Intake',cp:'CP Review',ops:'Ops',laytime:'Laytime'};
+      const appsUsed = u.appsUsed || [];
+      const appsBadges = appsUsed.length
+        ? appsUsed.map(a=>`<span title="${appNames[a]||a}" style="font-size:0.9rem;" >${appIcons[a]||'🔧'}</span>`).join(' ')
+        : '<span style="color:var(--muted);font-size:0.72rem;">—</span>';
+      const lastApp = u.lastApp ? `<div style="font-size:0.62rem;color:var(--muted);font-family:var(--mono);margin-top:2px;">${appIcons[u.lastApp]||''} ${appNames[u.lastApp]||u.lastApp}</div>` : '';
+      return `<tr><td>${av}<strong>${u.name||'—'}</strong></td><td style="font-family:var(--mono);font-size:.78rem;">${u.email}</td><td style="color:var(--muted);">${u.company||'—'}</td><td>${role}</td><td>${prov}</td><td>${appsBadges}${lastApp}</td><td style="font-family:var(--mono);font-size:.75rem;color:var(--muted);">${fmt(u.firstLogin)}</td><td style="font-family:var(--mono);font-size:.75rem;color:var(--muted);">${fmt(u.lastLogin)}</td></tr>`;
     }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">No users yet</td></tr>';
-  } catch(e) { document.getElementById('users-tbody').innerHTML=`<tr><td colspan="7" style="color:var(--red);padding:1rem;">${e.message}</td></tr>`; }
+  } catch(e) { document.getElementById('users-tbody').innerHTML=`<tr><td colspan="8" style="color:var(--red);padding:1rem;">${e.message}</td></tr>`; }
 };
 
 window.showLauncher = () => { showScreen('launcher'); renderLauncher(); };
